@@ -1,0 +1,34 @@
+name: Access Roles Concurrency Audit
+
+on:
+  pull_request:
+    paths:
+      - 'access_roles/**'
+      - 'scripts/access_roles_concurrency_audit.py'
+      - '.github/workflows/access-roles-concurrency-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile audit
+        run: python -m py_compile scripts/access_roles_concurrency_audit.py
+      - name: Generate evidence
+        run: |
+          python scripts/access_roles_concurrency_audit.py | tee /tmp/access-roles-concurrency.md
+          cat /tmp/access-roles-concurrency.md >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: access-roles-concurrency-audit
+          path: artifacts/access-roles-concurrency/audit.json
+          retention-days: 30
