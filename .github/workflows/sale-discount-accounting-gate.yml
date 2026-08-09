@@ -2,6 +2,7 @@ name: Sale Discount Accounting Gate
 
 on:
   pull_request:
+    branches: [19.0]
     paths:
       - 'sale_discount_total/**'
       - '.github/workflows/sale-discount-accounting-gate.yml'
@@ -16,6 +17,13 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          sparse-checkout: |
+            sale_discount_total/models/account_move.py
+            sale_discount_total/__manifest__.py
+            .github/workflows/sale-discount-accounting-gate.yml
+          sparse-checkout-cone-mode: false
 
       - name: Compile module
         run: python -m py_compile sale_discount_total/models/account_move.py
