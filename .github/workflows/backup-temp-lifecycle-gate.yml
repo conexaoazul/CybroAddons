@@ -7,6 +7,7 @@ on:
       - 'auto_database_backup/models/db_backup_temp_lifecycle.py'
       - 'auto_database_backup/models/__init__.py'
       - '.github/workflows/backup-temp-lifecycle-gate.yml'
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -17,6 +18,13 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          sparse-checkout: |
+            auto_database_backup/models/db_backup_temp_lifecycle.py
+            auto_database_backup/models/__init__.py
+            .github/workflows/backup-temp-lifecycle-gate.yml
+          sparse-checkout-cone-mode: false
 
       - name: Compile hardening module
         run: python -m py_compile auto_database_backup/models/db_backup_temp_lifecycle.py
@@ -27,17 +35,21 @@ jobs:
           set -euo pipefail
           file='auto_database_backup/models/db_backup_temp_lifecycle.py'
           grep -q '_OWNED_TMP_DIRNAME = "odoo-auto-database-backup"' "$file"
+          grep -q 'getattr(os, "geteuid"' "$file"
           grep -q 'entry.name.startswith("backup-")' "$file"
           if grep -Eq "rmtree\(|os\.listdir\(tempfile\.gettempdir\(\)\)|startswith\(['\"]tmp['\"]\)" "$file"; then
             echo 'Unsafe generic temp sweep detected'
             exit 1
           fi
 
-      - name: Guard deterministic S3 cleanup
+      - name: Guard active-upload and deterministic cleanup
         shell: bash
         run: |
           set -euo pipefail
           file='auto_database_backup/models/db_backup_temp_lifecycle.py'
           grep -q 'delete=False' "$file"
+          grep -q 'lock_path = temp.name + ".lock"' "$file"
+          grep -q 'LOCK_EX | fcntl.LOCK_NB' "$file"
           grep -q '^        finally:' "$file"
-          grep -q 'os.remove(temp.name)' "$file"
+          grep -q 'for path in (temp.name, lock_path):' "$file"
+          grep -q 'os.remove(path)' "$file"
