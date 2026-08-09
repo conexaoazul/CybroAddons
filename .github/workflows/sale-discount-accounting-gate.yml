@@ -1,0 +1,42 @@
+name: Sale Discount Accounting Gate
+
+on:
+  pull_request:
+    paths:
+      - 'sale_discount_total/**'
+      - '.github/workflows/sale-discount-accounting-gate.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  safety:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compile module
+        run: python -m py_compile sale_discount_total/models/account_move.py
+
+      - name: Keep Odoo accounting core native
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          source = Path('sale_discount_total/models/account_move.py').read_text()
+          assert 'def _compute_amount(self):' not in source, (
+              'sale_discount_total must not replace account.move._compute_amount'
+          )
+          assert "compute='_compute_amount_discount'" in source
+          assert 'def _compute_amount_discount(self):' in source
+          PY
+
+      - name: Guard fixed-amount zero-total path
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          source = Path('sale_discount_total/models/account_move.py').read_text()
+          assert 'if inv.discount_rate and total' in source
+          assert 'self._supply_rate()' in source
+          PY
