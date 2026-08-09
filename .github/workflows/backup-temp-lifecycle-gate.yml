@@ -1,0 +1,43 @@
+name: Backup Temp Lifecycle Gate
+
+on:
+  pull_request:
+    branches: [19.0]
+    paths:
+      - 'auto_database_backup/models/db_backup_temp_lifecycle.py'
+      - 'auto_database_backup/models/__init__.py'
+      - '.github/workflows/backup-temp-lifecycle-gate.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  safety:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compile hardening module
+        run: python -m py_compile auto_database_backup/models/db_backup_temp_lifecycle.py
+
+      - name: Guard namespace ownership
+        shell: bash
+        run: |
+          set -euo pipefail
+          file='auto_database_backup/models/db_backup_temp_lifecycle.py'
+          grep -q '_OWNED_TMP_DIRNAME = "odoo-auto-database-backup"' "$file"
+          grep -q 'entry.name.startswith("backup-")' "$file"
+          if grep -Eq "rmtree\(|os\.listdir\(tempfile\.gettempdir\(\)\)|startswith\(['\"]tmp['\"]\)" "$file"; then
+            echo 'Unsafe generic temp sweep detected'
+            exit 1
+          fi
+
+      - name: Guard deterministic S3 cleanup
+        shell: bash
+        run: |
+          set -euo pipefail
+          file='auto_database_backup/models/db_backup_temp_lifecycle.py'
+          grep -q 'delete=False' "$file"
+          grep -q '^        finally:' "$file"
+          grep -q 'os.remove(temp.name)' "$file"
