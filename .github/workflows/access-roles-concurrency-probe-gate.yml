@@ -43,10 +43,14 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          if grep -RIn --exclude='ACCESS_ROLES_CONCURRENCY_PROBE.md' \
-              -E 'access_roles_registry_rebuild_all|Scheduling access roles registry rebuild in post-commit hook' \
-              access_roles docs .github 2>/dev/null; then
-            echo '::error::Detected upstream-specific OPL implementation strings outside provenance documentation.'
+          pattern='access_roles_registry_rebuild_all|Scheduling access roles registry rebuild in post-commit hook'
+          matches="$(grep -RIn \
+            --exclude='ACCESS_ROLES_CONCURRENCY_PROBE.md' \
+            --exclude='access-roles-concurrency-probe-gate.yml' \
+            -E "$pattern" access_roles docs .github 2>/dev/null || true)"
+          if [[ -n "$matches" ]]; then
+            printf '%s\n' "$matches"
+            echo '::error::Detected upstream-specific OPL implementation strings outside allowed provenance/gate files.'
             exit 1
           fi
           echo 'Clean-room boundary intact.'
