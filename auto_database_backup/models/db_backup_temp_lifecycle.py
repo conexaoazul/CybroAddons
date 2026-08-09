@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 """Hardening for backup temporary-file lifecycle.
 
-This intentionally avoids sweeping generic files from the operating-system
-``temp`` directory. Only files created under the module-owned namespace are
-eligible for stale cleanup.
+Only files created under the module-owned namespace are eligible for stale
+cleanup. Generic operating-system temporary files are never swept.
 """
 
 import logging
@@ -13,7 +12,7 @@ import time
 
 import boto3
 
-from odoo import models
+from odoo import fields, models
 
 _logger = logging.getLogger(__name__)
 
@@ -31,18 +30,11 @@ class DbBackupConfigureTempLifecycle(models.Model):
         try:
             os.chmod(root, 0o700)
         except OSError:
-            # The directory may live on a filesystem that does not support
-            # POSIX permissions. Creation/isolation is still useful there.
             pass
         return root
 
     def _cleanup_stale_owned_backup_temps(self):
-        """Remove only stale files created by this module.
-
-        The upstream fix scanned generic ``/tmp/tmp*`` entries. That can touch
-        temporary data owned by unrelated processes. Keeping an explicit
-        namespace makes cleanup deterministic and safe for shared hosts.
-        """
+        """Remove only stale files created by this module."""
         root = self._owned_backup_tmp_dir()
         cutoff = time.time() - _STALE_AFTER_SECONDS
         try:
@@ -73,8 +65,6 @@ class DbBackupConfigureTempLifecycle(models.Model):
     def _backup_to_amazon_s3(self, db_name, backup_filename, backup_time):
         """Upload to S3/S3-compatible storage with deterministic cleanup."""
         if not (self.aws_access_key and self.aws_secret_access_key):
-            # Preserve the canonical validation and translated error from the
-            # base implementation instead of duplicating it here.
             return super()._backup_to_amazon_s3(
                 db_name, backup_filename, backup_time
             )
@@ -83,22 +73,25 @@ class DbBackupConfigureTempLifecycle(models.Model):
         s3_client = boto3.client("s3", **client_kwargs)
         if self.auto_remove:
             response = s3_client.list_objects(
-                Bucket=self.bucket_file_name, Prefix=self.aws_folder_name
+                Bucket=self.bucket_file_name,
+                Prefix=self.aws_folder_name,
             )
-            today = self.env["ir.fields.converter"]._context.get("date") \
-                if "ir.fields.converter" in self.env else None
-            # Fall back to the parent for retention behavior. The hardening in
-            # this override is deliberately scoped to temp-file lifecycle.
-            if response.get("Contents") and today is not None:
-                return super()._backup_to_amazon_s3(
-                    db_name, backup_filename, backup_time
-                )
+            today = fields.date.today()
+            for file in response.get("Contents", []):
+                if (today - file["LastModified"].date()).days >= \
+                        self.days_to_remove:
+                    s3_client.delete_object(
+                        Bucket=self.bucket_file_name,
+                        Key=file["Key"],
+                    )
 
         s3 = boto3.resource("s3", **client_kwargs)
         s3.Object(self.bucket_file_name, self.aws_folder_name + "/").put()
         bucket = s3.Bucket(self.bucket_file_name)
         prefixes = {
-            obj.key[:-1] for obj in bucket.objects.all() if obj.key.endswith("/")
+            obj.key[:-1]
+            for obj in bucket.objects.all()
+            if obj.key.endswith("/")
         }
         if self.aws_folder_name not in prefixes:
             return
@@ -113,13 +106,17 @@ class DbBackupConfigureTempLifecycle(models.Model):
         try:
             with temp:
                 self.dump_data(
-                    db_name, temp, self.backup_format, self.backup_frequency
+                    db_name,
+                    temp,
+                    self.backup_format,
+                    self.backup_frequency,
                 )
                 temp.flush()
             remote_file_path = f"{self.aws_folder_name}/{backup_filename}"
-            s3.Object(self.bucket_file_name, remote_file_path).upload_file(
-                temp.name
-            )
+            s3.Object(
+                self.bucket_file_name,
+                remote_file_path,
+            ).upload_file(temp.name)
         finally:
             try:
                 os.remove(temp.name)
