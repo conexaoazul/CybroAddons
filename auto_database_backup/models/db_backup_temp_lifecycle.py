@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Hardening for backup temporary-file lifecycle.
 
-Only files created under the module-owned namespace are eligible for stale
+Only files created under a service-owned namespace are eligible for stale
 cleanup. Generic operating-system temporary files are never swept.
 """
 
@@ -14,6 +14,11 @@ import boto3
 
 from odoo import fields, models
 
+try:
+    import fcntl
+except ImportError:  # pragma: no cover - non-POSIX fallback
+    fcntl = None
+
 _logger = logging.getLogger(__name__)
 
 _OWNED_TMP_DIRNAME = "odoo-auto-database-backup"
@@ -24,8 +29,17 @@ class DbBackupConfigureTempLifecycle(models.Model):
     _inherit = "db.backup.configure"
 
     def _owned_backup_tmp_dir(self):
-        """Return a private namespace for temporary backup payloads."""
-        root = os.path.join(tempfile.gettempdir(), _OWNED_TMP_DIRNAME)
+        """Return a temp namespace isolated by the current OS user.
+
+        Multiple Odoo services may share ``/tmp`` while running under distinct
+        Unix users. Including the effective uid prevents one service from
+        creating a mode-0700 directory that blocks another service.
+        """
+        uid = getattr(os, "geteuid", lambda: 0)()
+        root = os.path.join(
+            tempfile.gettempdir(),
+            f"{_OWNED_TMP_DIRNAME}-{uid}",
+        )
         os.makedirs(root, mode=0o700, exist_ok=True)
         try:
             os.chmod(root, 0o700)
@@ -33,32 +47,66 @@ class DbBackupConfigureTempLifecycle(models.Model):
             pass
         return root
 
+    def _try_lock(self, lock_stream):
+        """Acquire an exclusive non-blocking lock when supported.
+
+        On non-POSIX platforms stale sweeping is disabled rather than risking
+        removal of an in-flight backup. Normal ``finally`` cleanup still runs.
+        """
+        if fcntl is None:
+            return False
+        try:
+            fcntl.flock(lock_stream.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+            return True
+        except OSError:
+            return False
+
     def _cleanup_stale_owned_backup_temps(self):
-        """Remove only stale files created by this module."""
+        """Remove stale payloads only when their lock is not held.
+
+        Age alone is insufficient because a large multipart upload may remain
+        active long after the dump file's mtime stops changing. Every payload
+        therefore has a sidecar ``.lock`` file held for the whole dump/upload
+        lifecycle. Cleanup skips any lock that another process still holds.
+        """
+        if fcntl is None:
+            return
         root = self._owned_backup_tmp_dir()
         cutoff = time.time() - _STALE_AFTER_SECONDS
         try:
-            entries = os.scandir(root)
+            entries = list(os.scandir(root))
         except OSError as error:
             _logger.warning("Unable to scan backup temp namespace: %s", error)
             return
 
-        with entries:
-            for entry in entries:
-                if not entry.name.startswith("backup-") or not entry.is_file():
+        for entry in entries:
+            if (
+                not entry.name.startswith("backup-")
+                or entry.name.endswith(".lock")
+                or not entry.is_file()
+            ):
+                continue
+            lock_path = entry.path + ".lock"
+            try:
+                if entry.stat().st_mtime >= cutoff:
                     continue
-                try:
-                    if entry.stat().st_mtime < cutoff:
-                        os.remove(entry.path)
-                except OSError as error:
-                    _logger.info(
-                        "Unable to remove stale backup temp %s: %s",
-                        entry.path,
-                        error,
-                    )
+                with open(lock_path, "a+b") as lock_stream:
+                    if not self._try_lock(lock_stream):
+                        continue
+                    os.remove(entry.path)
+                    try:
+                        os.remove(lock_path)
+                    except FileNotFoundError:
+                        pass
+            except OSError as error:
+                _logger.info(
+                    "Unable to remove stale backup temp %s: %s",
+                    entry.path,
+                    error,
+                )
 
     def _run_backup(self, manual=False):
-        """Clean our namespace before each scheduled or manual backup run."""
+        """Clean abandoned owned payloads before each backup run."""
         self._cleanup_stale_owned_backup_temps()
         return super()._run_backup(manual=manual)
 
@@ -103,7 +151,11 @@ class DbBackupConfigureTempLifecycle(models.Model):
             dir=self._owned_backup_tmp_dir(),
             delete=False,
         )
+        lock_path = temp.name + ".lock"
+        lock_stream = open(lock_path, "a+b")
         try:
+            if fcntl is not None:
+                fcntl.flock(lock_stream.fileno(), fcntl.LOCK_EX)
             with temp:
                 self.dump_data(
                     db_name,
@@ -118,13 +170,15 @@ class DbBackupConfigureTempLifecycle(models.Model):
                 remote_file_path,
             ).upload_file(temp.name)
         finally:
-            try:
-                os.remove(temp.name)
-            except FileNotFoundError:
-                pass
-            except OSError as error:
-                _logger.warning(
-                    "Unable to remove backup temporary file %s: %s",
-                    temp.name,
-                    error,
-                )
+            lock_stream.close()
+            for path in (temp.name, lock_path):
+                try:
+                    os.remove(path)
+                except FileNotFoundError:
+                    pass
+                except OSError as error:
+                    _logger.warning(
+                        "Unable to remove backup temporary path %s: %s",
+                        path,
+                        error,
+                    )
