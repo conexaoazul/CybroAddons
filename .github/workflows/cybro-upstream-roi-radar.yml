@@ -1,0 +1,59 @@
+name: Cybro Upstream ROI Radar
+
+on:
+  pull_request:
+    branches: ["19.0"]
+    paths:
+      - "scripts/cybro_upstream_roi_radar.py"
+      - ".github/workflows/cybro-upstream-roi-radar.yml"
+      - "docs/blueops/CYBRO_*.md"
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: Number of recently updated upstream PRs to scan
+        required: false
+        default: "100"
+      top:
+        description: Number of ranked candidates to publish
+        required: false
+        default: "20"
+  schedule:
+    - cron: "17 9 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  radar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Compile radar
+        run: python -m py_compile scripts/cybro_upstream_roi_radar.py
+
+      - name: Rank upstream pull requests
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          LIMIT: ${{ inputs.limit || '100' }}
+          TOP: ${{ inputs.top || '20' }}
+        run: |
+          python scripts/cybro_upstream_roi_radar.py \
+            --limit "$LIMIT" \
+            --top "$TOP" \
+            --out-dir artifacts/cybro-radar | tee /tmp/cybro-radar.md
+          cat /tmp/cybro-radar.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: cybro-upstream-roi-radar
+          path: artifacts/cybro-radar/
+          retention-days: 30
