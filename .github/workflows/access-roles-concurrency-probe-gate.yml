@@ -1,0 +1,56 @@
+name: Access Roles Concurrency Probe Gate
+
+on:
+  pull_request:
+    paths:
+      - 'access_roles/**'
+      - 'docs/blueops/ACCESS_ROLES_CONCURRENCY_PROBE.md'
+      - '.github/workflows/access-roles-concurrency-probe-gate.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  static-risk-map:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify documented startup mutation points
+        shell: bash
+        run: |
+          set -euo pipefail
+          files=(
+            access_roles/models/button_registry.py
+            access_roles/models/filter_registry.py
+            access_roles/models/groupby_registry.py
+            access_roles/models/tab_registry.py
+            access_roles/models/res_groups.py
+          )
+          missing=0
+          for file in "${files[@]}"; do
+            if ! grep -q 'def _register_hook' "$file"; then
+              echo "::warning file=$file::Expected startup hook no longer found. Reconcile probe assumptions."
+              missing=1
+            fi
+          done
+          if [[ "$missing" -ne 0 ]]; then
+            exit 1
+          fi
+          echo 'Current Odoo 19 risk map confirmed: five access_roles startup hooks require runtime concurrency QA.'
+      - name: Guard clean-room boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          pattern='access_roles_registry_rebuild_all|Scheduling access roles registry rebuild in post-commit hook'
+          matches="$(grep -RIn \
+            --exclude='ACCESS_ROLES_CONCURRENCY_PROBE.md' \
+            --exclude='access-roles-concurrency-probe-gate.yml' \
+            -E "$pattern" access_roles docs .github 2>/dev/null || true)"
+          if [[ -n "$matches" ]]; then
+            printf '%s\n' "$matches"
+            echo '::error::Detected upstream-specific OPL implementation strings outside allowed provenance/gate files.'
+            exit 1
+          fi
+          echo 'Clean-room boundary intact.'
