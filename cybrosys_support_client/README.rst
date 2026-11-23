@@ -61,8 +61,18 @@ Configuration is intentionally opt-in for automated ticket submission:
 * **Settings → Technical → System Parameters**
 * ``blue_support.whatsapp_number`` – default ``551151924469``
 * ``blue_support.endpoint_url`` – required first-party HTTPS API URL for Submit
+* ``BLUE_SUPPORT_API_TOKEN_FILE`` – recommended Docker/Portainer secret file path
+  (e.g. ``/run/secrets/blue_support_api_token``); takes precedence over DB config.
+  If configured but unreadable, the submission fails closed rather than falling
+  back to the DB token.
 * ``blue_support.api_token`` – required bearer token stored outside Git
 * ``blue_support.tracking_url`` – optional first-party ticket tracking URL
+
+The client sends an ``X-Idempotency-Key`` header on each request. The same
+wizard reuses its key on retry, but **the receiving API must perform atomic
+idempotency enforcement**. HTTP redirects are rejected before forwarding data.
+See ``doc/BLUE_SUPPORT_API_CONTRACT.md`` for the server contract, n8n/Helpdesk
+integration requirements, attachment-size caveat and QA gates.
 
 Do not configure an endpoint or token before the Conexão Azul backend is
 validated and the security/QA gate is approved. A pre-existing
