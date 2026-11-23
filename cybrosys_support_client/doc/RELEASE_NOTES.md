@@ -23,3 +23,10 @@
 - Removes the legacy Cybrosys ticket endpoint and static authentication token from runtime use.
 - Ticket submission fails closed until a first-party HTTPS endpoint and bearer token are explicitly configured.
 - Keeps legacy Odoo technical identifiers and original LGPL-3 attribution for compatibility.
+
+#### 23.11.2026 — Brazilian Portuguese localization
+#### Version 19.0.1.1.2
+#### I18N
+- Adds pt_BR translations for the support wizard, field labels, categories, priorities, errors and user notices.
+- Keeps technical IDs, access control, WhatsApp destination, and fail-closed ticket submission unchanged.
+- Requires module upgrade and pt_BR user language to display translated fields in Odoo 19.
