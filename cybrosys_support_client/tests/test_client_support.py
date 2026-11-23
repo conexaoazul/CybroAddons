@@ -1,5 +1,5 @@
 import base64
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, mock_open, patch
 
 from odoo.exceptions import ValidationError
 from odoo.tests import TransactionCase, tagged
@@ -27,15 +27,20 @@ class TestClientSupport(TransactionCase):
 
     def _mock_post(self, result):
         response = MagicMock()
+        response.status_code = 200
         response.json.return_value = {'result': result}
         return patch.object(client_support.requests, 'post', return_value=response)
 
     def test_bearer_token_sent(self):
         """Only our configured service receives the configured bearer token."""
+        wizard = self._wizard()
         with self._mock_post({'message': 'success', 'ticket_id': 'CYB-1'}) as post:
-            action = self._wizard().confirm_button()
+            action = wizard.confirm_button()
         headers = post.call_args.kwargs['headers']
-        self.assertEqual(headers, {'Authorization': 'Bearer example-test-token'})
+        self.assertEqual(headers['Authorization'], 'Bearer example-test-token')
+        self.assertEqual(headers['X-Idempotency-Key'], wizard.request_key)
+        self.assertEqual(headers['Accept'], 'application/json')
+        self.assertFalse(post.call_args.kwargs['allow_redirects'])
         self.assertEqual(post.call_args.args[0],
                          'https://api.conexaoazul.com/support/tickets')
         self.assertEqual(action['tag'], 'display_notification')
@@ -64,6 +69,64 @@ class TestClientSupport(TransactionCase):
         self.params.set_param(client_support.SUPPORT_API_TOKEN_PARAM, '')
         with self._mock_post({}) as post, self.assertRaises(ValidationError):
             self._wizard().confirm_button()
+        post.assert_not_called()
+
+
+    def test_request_key_reused_across_retries(self):
+        wizard = self._wizard()
+        with self._mock_post({'message': 'success', 'ticket_id': 'CA-42'}) as post:
+            wizard.confirm_button()
+            wizard.confirm_button()
+        self.assertEqual(post.call_count, 2)
+        self.assertEqual(
+            post.call_args_list[0].kwargs['headers']['X-Idempotency-Key'],
+            post.call_args_list[1].kwargs['headers']['X-Idempotency-Key'])
+        self.assertEqual(
+            post.call_args_list[1].kwargs['headers']['X-Idempotency-Key'],
+            wizard.request_key)
+
+    def test_redirect_rejected_without_forwarding_bearer_or_payload(self):
+        response = MagicMock()
+        response.status_code = 307
+        with patch.object(client_support.requests, 'post',
+                          return_value=response) as post:
+            with self.assertRaises(ValidationError):
+                self._wizard().confirm_button()
+        self.assertFalse(post.call_args.kwargs['allow_redirects'])
+        response.raise_for_status.assert_not_called()
+
+    def test_malformed_api_response_rejected(self):
+        response = MagicMock()
+        response.status_code = 200
+        response.json.return_value = [{'result': {'message': 'success'}}]
+        with patch.object(client_support.requests, 'post',
+                          return_value=response):
+            with self.assertRaises(ValidationError):
+                self._wizard().confirm_button()
+
+    def test_mounted_secret_preferred_over_database_parameter(self):
+        wizard = self._wizard()
+        with (patch.dict(client_support.os.environ, {
+                  client_support.SUPPORT_TOKEN_FILE_ENV:
+                  '/run/secrets/blue_support_api_token'
+              }),
+              patch('builtins.open', mock_open(read_data='mounted-secret')),
+              self._mock_post({'message': 'success', 'ticket_id': 'CA-43'}) as post):
+            wizard.confirm_button()
+        self.assertEqual(
+            post.call_args.kwargs['headers']['Authorization'],
+            'Bearer mounted-secret')
+
+    def test_missing_mounted_secret_fails_closed_without_db_fallback(self):
+        wizard = self._wizard()
+        with (patch.dict(client_support.os.environ, {
+                  client_support.SUPPORT_TOKEN_FILE_ENV:
+                  '/run/secrets/blue_support_api_token'
+              }),
+              patch('builtins.open', side_effect=OSError('missing secret')),
+              self._mock_post({}) as post):
+            with self.assertRaises(ValidationError):
+                wizard.confirm_button()
         post.assert_not_called()
 
     def test_whatsapp_uses_configured_support_number(self):
