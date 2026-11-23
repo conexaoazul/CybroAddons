@@ -24,7 +24,7 @@
 #### Version 19.0.2.0.3
 #### UPDT
 
-- Added cybrosys_support_client as a dependency module
+- Added blue_support_client as a dependency module
 
 
 

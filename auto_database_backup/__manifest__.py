@@ -38,7 +38,7 @@
     'company': 'Cybrosys Techno Solutions',
     'maintainer': 'Cybrosys Techno Solutions',
     'website': "https://www.conexaoazul.com",
-    'depends': ['base', 'mail', 'web','cybrosys_support_client'],
+    'depends': ['base', 'mail', 'web','blue_support_client'],
     'data': [
         'security/db_backup_security.xml',
         'security/ir.model.access.csv',

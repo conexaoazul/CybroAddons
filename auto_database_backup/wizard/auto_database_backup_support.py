@@ -145,30 +145,61 @@ class AutoDatabaseBackupSupport(models.TransientModel):
             else:
                 record.payload_preview = False
 
-    def _first_party_endpoint(self):
-        self.ensure_one()
-        get_param = self.env['ir.config_parameter'].sudo().get_param
-        url = (get_param(DB_PARAM_ENDPOINT) or '').strip()
-        token = (get_param(DB_PARAM_TOKEN) or '').strip()
-        if not url or not token:
-            raise ValidationError(_(
-                "Ticket submission is disabled on this database. "
-                "Ask Conexão Azul to configure a first-party HTTPS "
-                "endpoint and token before using Submit."
-            ))
-        return url, token
-
     def _submit_support_request(self):
+        """helpdesk nativo -> endpoint first-party -> SMTP (em cadeia)."""
         self.ensure_one()
-        endpoint, token = self._first_party_endpoint()
-        response = requests.post(
-            endpoint,
-            json=self._build_payload(),
-            timeout=SUPPORT_TIMEOUT,
-            headers={'Authorization': 'Bearer %s' % token},
-        )
-        response.raise_for_status()
-        return response.json()
+        env = self.env
+        if 'helpdesk.team' in env:
+            team = env['helpdesk.team'].sudo().search([], limit=1)
+            if team:
+                body = chr(10).join([
+                    self.description or '',
+                    '',
+                    'Origem: Suporte do Backup Automatico (auto_database_backup)',
+                ])
+                ticket = env['helpdesk.ticket'].sudo().create({
+                    'team_id': team.id,
+                    'name': self.subject or 'Suporte backup',
+                    'partner_id': env.user.partner_id.id,
+                    'description': body,
+                })
+                if self.attachment_ids:
+                    ticket.message_post(
+                        body='',
+                        attachment_ids=[(4, a.id) for a in self.attachment_ids])
+                _logger.info('auto backup support: ticket id=%s', ticket.id)
+                return {'result': {'message': 'success',
+                                   'ticket_id': 'TCK-%s' % ticket.id}}
+        get_param = env['ir.config_parameter'].sudo().get_param
+        url = (get_param(DB_PARAM_ENDPOINT, '') or '').strip()
+        token = (get_param(DB_PARAM_TOKEN, '') or '').strip()
+        if url and token:
+            response = requests.post(
+                url,
+                json=self._build_payload(),
+                timeout=SUPPORT_TIMEOUT,
+                headers={'Authorization': 'Bearer %s' % token},
+            )
+            response.raise_for_status()
+            return response.json()
+        to_addr = (get_param('blue_support.email', '')
+                   or 'suporte@conexaoazul.com').strip()
+        desc = (self.description or '').replace(chr(10), '<br/>')
+        rows = [
+            '<b>%s</b>: %s' % ('Cliente', self.name or ''),
+            '<b>%s</b>: %s' % ('E-mail', self.email or ''),
+            '<b>%s</b>: %s' % ('Assunto', self.subject or ''),
+            '<br/><b>Descricao</b>:<br/>%s' % desc,
+        ]
+        mail = env['mail.mail'].sudo().create({
+            'subject': self.subject or 'Suporte backup',
+            'email_to': to_addr,
+            'body_html': '<div>%s</div>' % '<br/>'.join(rows),
+            'attachment_ids': [(6, 0, self.attachment_ids.ids)],
+        })
+        mail.send()
+        _logger.info('auto backup support: smtp fallback mail.id=%s', mail.id)
+        return {'result': {'message': 'success', 'ticket_id': 'MAIL-%s' % mail.id}}
 
     def confirm_button(self):
         self.ensure_one()
