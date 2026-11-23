@@ -105,6 +105,13 @@ class TestClientSupport(TransactionCase):
             with self.assertRaises(ValidationError):
                 self._wizard().confirm_button()
 
+    def test_success_without_ticket_reference_is_not_confirmed(self):
+        for invalid_id in (None, '', ' ', True, 'X' * 129):
+            with self._mock_post({'message': 'success',
+                                  'ticket_id': invalid_id}):
+                with self.assertRaises(ValidationError):
+                    self._wizard().confirm_button()
+
     def test_mounted_secret_preferred_over_database_parameter(self):
         wizard = self._wizard()
         with (patch.dict(client_support.os.environ, {
