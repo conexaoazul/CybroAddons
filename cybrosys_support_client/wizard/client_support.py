@@ -21,7 +21,9 @@
 ##############################################################################
 import json
 import logging
+import os
 import re
+import uuid
 from urllib.parse import quote, urlsplit
 
 import requests
@@ -34,6 +36,7 @@ from odoo.exceptions import ValidationError
 # third-party endpoint or token when using Conexao Azul-branded support.
 SUPPORT_ENDPOINT_PARAM = 'blue_support.endpoint_url'
 SUPPORT_API_TOKEN_PARAM = 'blue_support.api_token'
+SUPPORT_TOKEN_FILE_ENV = 'BLUE_SUPPORT_API_TOKEN_FILE'
 SUPPORT_TRACKING_URL_PARAM = 'blue_support.tracking_url'
 SUPPORT_WHATSAPP_PARAM = 'blue_support.whatsapp_number'
 DEFAULT_SUPPORT_WHATSAPP = '551151924469'
@@ -92,6 +95,10 @@ class ClientSupport(models.TransientModel):
         ('3', 'Blocker'),
     ], string='Priority', default='2',
         help='How urgent is this issue?')
+    request_key = fields.Char(
+        string='Request ID', default=lambda self: str(uuid.uuid4()),
+        readonly=True, copy=False,
+        help='Idempotency key retained when retrying this support request.')
     show_payload = fields.Boolean(
         string='Show what will be sent',
         help='Preview the exact data sent to Conexão Azul before submitting.')
@@ -180,9 +187,24 @@ class ClientSupport(models.TransientModel):
 
     @api.model
     def _get_support_api_token(self):
-        token = (self.env['ir.config_parameter'].sudo().get_param(
-            SUPPORT_API_TOKEN_PARAM) or '').strip()
-        if not token:
+        # A mounted Docker secret takes precedence over the legacy parameter.
+        # If the mount is configured but missing, never fall back silently.
+        token_file = (os.environ.get(SUPPORT_TOKEN_FILE_ENV) or '').strip()
+        if token_file:
+            if (not token_file.startswith('/run/secrets/')
+                    or '..' in token_file.split('/')):
+                raise ValidationError(_(
+                    "Support ticket authentication is not configured yet. "
+                    "Please use the WhatsApp button to contact Conexão Azul."))
+            try:
+                with open(token_file, encoding='utf-8') as secret_file:
+                    token = secret_file.read(4097).strip()
+            except OSError:
+                token = ''
+        else:
+            token = (self.env['ir.config_parameter'].sudo().get_param(
+                SUPPORT_API_TOKEN_PARAM) or '').strip()
+        if not token or len(token) > 4096:
             raise ValidationError(_(
                 "Support ticket authentication is not configured yet. "
                 "Please use the WhatsApp button to contact Conexão Azul."))
@@ -219,14 +241,34 @@ class ClientSupport(models.TransientModel):
         self.ensure_one()
         endpoint = self._get_support_endpoint()
         token = self._get_support_api_token()
+        # Reuse the same key on retry after a network timeout: the receiving
+        # API must enforce deduplication per credential and request key.
+        if not self.request_key:
+            self.request_key = str(uuid.uuid4())
         response = requests.post(
             endpoint,
             json=self._build_payload(),
-            headers={'Authorization': 'Bearer %s' % token},
+            headers={
+                'Authorization': 'Bearer %s' % token,
+                'X-Idempotency-Key': self.request_key,
+                'Accept': 'application/json',
+            },
             timeout=SUPPORT_TIMEOUT,
+            allow_redirects=False,
         )
+        # Never let a redirect forward a sensitive ticket payload.
+        if 300 <= response.status_code < 400:
+            raise ValidationError(_(
+                "The support service returned an unexpected response. "
+                "Please try again later."))
         response.raise_for_status()
-        return response.json()
+        result = response.json()
+        if (not isinstance(result, dict)
+                or not isinstance(result.get('result'), dict)):
+            raise ValidationError(_(
+                "The support service returned an unexpected response. "
+                "Please try again later."))
+        return result
 
     def confirm_button(self):
         """Submit only when the Conexão Azul support backend is configured."""
