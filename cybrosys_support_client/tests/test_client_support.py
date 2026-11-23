@@ -39,6 +39,7 @@ class TestClientSupport(TransactionCase):
         headers = post.call_args.kwargs['headers']
         self.assertEqual(headers['Authorization'], 'Bearer example-test-token')
         self.assertEqual(headers['X-Idempotency-Key'], wizard.request_key)
+        self.assertEqual(headers['X-Correlation-ID'], wizard.request_key)
         self.assertEqual(headers['Accept'], 'application/json')
         self.assertFalse(post.call_args.kwargs['allow_redirects'])
         self.assertEqual(post.call_args.args[0],
