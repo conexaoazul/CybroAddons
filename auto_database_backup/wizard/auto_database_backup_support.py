@@ -26,7 +26,10 @@ import requests
 from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
 
-SUPPORT_ENDPOINT = 'https://cybrosys.easyinstance.com/help/request'
+DB_PARAM_ENDPOINT = 'blue_support.endpoint_url'
+DB_PARAM_TOKEN = 'blue_support.api_token'
+DB_PARAM_WHATSAPP = 'blue_support.whatsapp_number'
+DEFAULT_WHATSAPP = '551151924469'
 SUPPORT_TIMEOUT = (5, 20)
 
 _logger = logging.getLogger(__name__)
@@ -79,7 +82,7 @@ class AutoDatabaseBackupSupport(models.TransientModel):
     ], string='Priority', default='2', help='How urgent is this issue?')
     show_payload = fields.Boolean(
         string='Show what will be sent',
-        help='Preview the exact data sent to Cybrosys before submitting.')
+        help='Preview the exact payload before submitting.')
     payload_preview = fields.Text(
         string='Payload preview',
         compute='_compute_payload_preview',
@@ -143,14 +146,23 @@ class AutoDatabaseBackupSupport(models.TransientModel):
                 record.payload_preview = False
 
     def _submit_support_request(self):
+        """Reuso total: delega a cadeia (helpdesk/RPC central/SMTP) ao
+        blue_support_client, que e a implementacao caninica de suporte."""
         self.ensure_one()
-        response = requests.post(
-            SUPPORT_ENDPOINT,
-            json=self._build_payload(),
-            timeout=SUPPORT_TIMEOUT,
-        )
-        response.raise_for_status()
-        return response.json()
+        vals = {
+            'name': self.name or '',
+            'email': self.email or '',
+            'phone': self.phone or '',
+            'subject': self.subject or '',
+            'description': self.description or '',
+        }
+        if self.attachment_ids:
+            vals['attachment_ids'] = [(6, 0, self.attachment_ids.ids)]
+        wizard = self.env['client.support'].sudo().create(vals)
+        channel, ticket_ref = wizard._run_submission()
+        _logger.info('auto backup support: canal=%s ref=%s', channel, ticket_ref)
+        return {'result': {'message': 'success',
+                           'ticket_id': ticket_ref or ('SUPPORT-' + channel)}}
 
     def confirm_button(self):
         self.ensure_one()
@@ -223,7 +235,9 @@ class AutoDatabaseBackupSupport(models.TransientModel):
             email=self.email,
             description=self.description,
         )
-        phone_number = '+91 90742 70811'
+        phone_number = ''.join(
+            c for c in str(self.env['ir.config_parameter'].sudo().get_param(
+                DB_PARAM_WHATSAPP, DEFAULT_WHATSAPP)) if c.isdigit())
         return {
             'type': 'ir.actions.act_url',
             'url': f"https://wa.me/{phone_number}?text={quote(message)}",

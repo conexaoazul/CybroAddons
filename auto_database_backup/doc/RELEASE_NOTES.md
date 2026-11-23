@@ -24,7 +24,15 @@
 #### Version 19.0.2.0.3
 #### UPDT
 
-- Added cybrosys_support_client as a dependency module
+- Added blue_support_client as a dependency module
 
 
 
+
+#### 23.11.2026 — Conexão Azul fork
+#### Version 19.0.2.0.4
+#### SECURITY / BRANDING / BUGFIX
+- Routes WhatsApp support to Conexão Azul Digital (+55 11 5192-4469) via blue_support.whatsapp_number.
+- Submit fails closed until a first-party HTTPS endpoint and bearer token (blue_support.endpoint_url / blue_support.api_token) are configured; legacy Cybrosys endpoint removed from runtime.
+- Controller: download of fresh .dump no longer crashes with io.UnsupportedOperation (non-seekable pg_dump pipe handled).
+- Landing page and docs rebranded; LGPL-3 attribution preserved.

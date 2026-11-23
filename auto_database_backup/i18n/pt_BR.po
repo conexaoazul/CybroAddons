@@ -1,0 +1,55 @@
+# Translation of Odoo Server (fork Conexão Azul Digital).
+# Tradução pt_BR dos textos visíveis do auto_database_backup.
+msgid ""
+msgstr ""
+"Project-Id-Version: auto_database_backup 19.0.2.0.4\n"
+"Language: pt_BR\n"
+"Language-Team: Conexão Azul Digital\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "Customer Name"
+msgstr "Nome do cliente"
+
+msgid "Email"
+msgstr "E-mail"
+
+msgid "Phone"
+msgstr "Telefone"
+
+msgid "Subject"
+msgstr "Assunto"
+
+msgid "Description"
+msgstr "Descrição"
+
+msgid "Attachments"
+msgstr "Anexos"
+
+msgid "Support Type"
+msgstr "Tipo de suporte"
+
+msgid "Category"
+msgstr "Categoria"
+
+msgid "Priority"
+msgstr "Prioridade"
+
+msgid "Show what will be sent"
+msgstr "Mostrar o que será enviado"
+
+msgid "Payload preview"
+msgstr "Pré-visualização do conteúdo"
+
+msgid "Submit"
+msgstr "Enviar"
+
+msgid "WhatsApp"
+msgstr "WhatsApp"
+
+msgid "Cancel"
+msgstr "Cancelar"
+
+msgid "Automatic Database Backup Support"
+msgstr "Suporte — Backup Automático de Database"
