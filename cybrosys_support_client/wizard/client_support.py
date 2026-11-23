@@ -269,6 +269,14 @@ class ClientSupport(models.TransientModel):
             raise ValidationError(_(
                 "The support service returned an unexpected response. "
                 "Please try again later."))
+        if result['result'].get('message') == 'success':
+            ticket_id = result['result'].get('ticket_id')
+            if (isinstance(ticket_id, bool)
+                    or not isinstance(ticket_id, (str, int))
+                    or not 1 <= len(str(ticket_id).strip()) <= 128):
+                raise ValidationError(_(
+                    "The support service returned an unexpected response. "
+                    "Please try again later."))
         return result
 
     def confirm_button(self):
