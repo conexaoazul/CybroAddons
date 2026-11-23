@@ -130,6 +130,34 @@ class TestClientSupport(TransactionCase):
                 wizard.confirm_button()
         post.assert_not_called()
 
+    def test_http_429_and_401_have_safe_localized_messages(self):
+        cases = (
+            (429, 'Too many support requests'),
+            (401, 'Support ticket authentication is not configured'),
+            (403, 'Support ticket authentication is not configured'),
+        )
+        for status, expected in cases:
+            response = MagicMock()
+            response.status_code = status
+            response.raise_for_status.side_effect = (
+                client_support.requests.HTTPError(response=response))
+            with patch.object(client_support.requests, 'post',
+                              return_value=response):
+                with self.assertRaises(ValidationError) as error:
+                    self._wizard().confirm_button()
+            self.assertIn(expected, str(error.exception))
+            self.assertNotIn('example-test-token', str(error.exception))
+
+    def test_other_transport_errors_are_redacted(self):
+        with patch.object(
+            client_support.requests, 'post',
+            side_effect=client_support.requests.InvalidURL('invalid request')
+        ):
+            with self.assertRaises(ValidationError) as error:
+                self._wizard().confirm_button()
+        self.assertIn('Could not reach', str(error.exception))
+        self.assertNotIn('invalid request', str(error.exception))
+
     def test_whatsapp_uses_configured_support_number(self):
         self.params.set_param(client_support.SUPPORT_WHATSAPP_PARAM,
                               '+55 (11) 5192-4469')
