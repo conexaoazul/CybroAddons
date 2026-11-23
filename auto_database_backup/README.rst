@@ -89,7 +89,7 @@ General Public License, Version 3 (LGPL v3).
 
 Company
 -------
-* `Cybrosys Techno Solutions <https://cybrosys.com/>`__
+* `Cybrosys Techno Solutions <https://conexaoazul.com/>`__
 
 Credits
 -------
@@ -99,11 +99,11 @@ Credits
                (v17) Aslam A K,
                (v18) Aslam A K,
                (v19) Ashwin A
-  Contact : odoo@cybrosys.com
+  Contact : suporte@conexaoazul.com
 
 Contacts
 --------
-* Mail Contact : odoo@cybrosys.com
+* Mail Contact : suporte@conexaoazul.com
 
 Bug Tracker
 -----------
@@ -111,12 +111,12 @@ Bugs are tracked on GitHub Issues. In case of trouble, please check there if you
 
 Maintainer
 ==========
-.. image:: https://cybrosys.com/images/logo.png
-   :target: https://cybrosys.com
+.. image:: https://conexaoazul.com/images/logo.png
+   :target: https://conexaoazul.com
 
 This module is maintained by Cybrosys Technologies.
 
-For support and more information, please visit `Our Website <https://cybrosys.com/>`__
+For support and more information, please visit `Our Website <https://conexaoazul.com/>`__
 
 Further information
 ===================

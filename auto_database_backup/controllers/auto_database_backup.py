@@ -121,7 +121,10 @@ class DbBackupDownload(http.Controller):
                 "Backup download failed: %s" % error,
                 headers=[('Content-Type', 'text/plain')], status=500)
         if hasattr(result, 'read'):
-            result.seek(0)
+            try:
+                result.seek(0)
+            except (AttributeError, ValueError, OSError):
+                pass  # pipe fresco do pg_dump: ja esta no inicio
             data = result.read()
         else:
             data = result

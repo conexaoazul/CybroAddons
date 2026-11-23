@@ -26,7 +26,10 @@ import requests
 from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
 
-SUPPORT_ENDPOINT = 'https://cybrosys.easyinstance.com/help/request'
+DB_PARAM_ENDPOINT = 'blue_support.endpoint_url'
+DB_PARAM_TOKEN = 'blue_support.api_token'
+DB_PARAM_WHATSAPP = 'blue_support.whatsapp_number'
+DEFAULT_WHATSAPP = '551151924469'
 SUPPORT_TIMEOUT = (5, 20)
 
 _logger = logging.getLogger(__name__)
@@ -79,7 +82,7 @@ class AutoDatabaseBackupSupport(models.TransientModel):
     ], string='Priority', default='2', help='How urgent is this issue?')
     show_payload = fields.Boolean(
         string='Show what will be sent',
-        help='Preview the exact data sent to Cybrosys before submitting.')
+        help='Preview the exact payload before submitting.')
     payload_preview = fields.Text(
         string='Payload preview',
         compute='_compute_payload_preview',
@@ -142,12 +145,27 @@ class AutoDatabaseBackupSupport(models.TransientModel):
             else:
                 record.payload_preview = False
 
+    def _first_party_endpoint(self):
+        self.ensure_one()
+        get_param = self.env['ir.config_parameter'].sudo().get_param
+        url = (get_param(DB_PARAM_ENDPOINT) or '').strip()
+        token = (get_param(DB_PARAM_TOKEN) or '').strip()
+        if not url or not token:
+            raise ValidationError(_(
+                "Ticket submission is disabled on this database. "
+                "Ask Conexão Azul to configure a first-party HTTPS "
+                "endpoint and token before using Submit."
+            ))
+        return url, token
+
     def _submit_support_request(self):
         self.ensure_one()
+        endpoint, token = self._first_party_endpoint()
         response = requests.post(
-            SUPPORT_ENDPOINT,
+            endpoint,
             json=self._build_payload(),
             timeout=SUPPORT_TIMEOUT,
+            headers={'Authorization': 'Bearer %s' % token},
         )
         response.raise_for_status()
         return response.json()
@@ -223,7 +241,9 @@ class AutoDatabaseBackupSupport(models.TransientModel):
             email=self.email,
             description=self.description,
         )
-        phone_number = '+91 90742 70811'
+        phone_number = ''.join(
+            c for c in str(self.env['ir.config_parameter'].sudo().get_param(
+                DB_PARAM_WHATSAPP, DEFAULT_WHATSAPP)) if c.isdigit())
         return {
             'type': 'ir.actions.act_url',
             'url': f"https://wa.me/{phone_number}?text={quote(message)}",
