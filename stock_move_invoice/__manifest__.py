@@ -21,7 +21,7 @@
 #############################################################################
 {
     'name': "Invoice From Stock Picking",
-    'version': '19.0.1.0.0',
+    'version': '19.0.1.0.1',
     'category': 'Extra Tools',
     'summary': """Create invoice for stock picking""",
     'description': """In this module creating customer invoice,vendor bill, 
@@ -32,6 +32,7 @@
     'website': "https://www.cybrosys.com",
     'depends': ['base','stock', 'account'],
     'data': [
+        'security/ir.model.access.csv',
         'views/account_move_views.xml',
         'views/stock_picking_views.xml',
         'views/res_config_settings_views.xml',

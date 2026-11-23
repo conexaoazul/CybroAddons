@@ -20,15 +20,15 @@
 #
 ##############################################################################
 {
-    'name': "Cybrosys Support Assistant",
-    "version": "19.0.1.0.0",
+    'name': "Conexão Azul Support Assistant",
+    "version": "19.0.1.1.1",
     "category": "Productivity ",
-    "summary": "Get Technical/Functional Assistance from Cybrosys without leaving your Database",
-    "description": """Get Technical/Functional Assistant from Cybrosys without leaving your Odoo Database, Cybrosys Support, Functional Support, Technical Support""",
-    'author': 'Cybrosys Techno Solutions',
-    'company': 'Cybrosys Techno Solutions',
-    'maintainer': 'Cybrosys Techno Solutions',
-    'website': "https://www.cybrosys.com",
+    "summary": "Get Conexão Azul technical and functional assistance from Odoo",
+    "description": """Conexão Azul support via WhatsApp; ticket submission requires an explicitly configured first-party endpoint. Based on the Cybrosys Support Assistant (LGPL-3).""",
+    'author': 'Cybrosys Techno Solutions, Conexão Azul Digital',
+    'company': 'Conexão Azul Digital',
+    'maintainer': 'Conexão Azul Digital',
+    'website': "https://www.conexaoazul.com",
     'depends': ['base', 'web'],
     'data': [
         'security/ir.model.access.csv',

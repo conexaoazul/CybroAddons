@@ -2,16 +2,16 @@
     :target: https://www.gnu.org/licenses/lgpl-3.0-standalone.html
     :alt: License: LGPL-3
 
-Odoo Support Request
-====================
-Create Odoo Support Request To Cybrosys
+Conexão Azul Support Assistant
+=============================
+Contact Conexão Azul Digital from your Odoo 19 backend.
 
 Overview
 ========
-Adds a "Contact Cybrosys Support" tool to the Odoo backend. A headphones icon
+Adds a "Suporte Conexão Azul" tool to the Odoo backend. A headphones icon
 appears in the systray (and an entry in the user menu); clicking it — or
 pressing ``Alt+Shift+H`` — opens a wizard where any internal user can raise a
-support request to Cybrosys without leaving Odoo.
+support request without leaving Odoo.
 
 The wizard collects the customer name, email, phone, subject, description,
 support type, category and priority, and lets the user attach files. A live
@@ -20,15 +20,14 @@ attachment bytes redacted) before submitting.
 
 Two ways to send:
 
-* **Submit** – POSTs the request as JSON to the Cybrosys support server. On
-  success a sticky notification shows the created ticket reference
-  (``CYB-…``). Errors are reported clearly (attachments too large, service
-  unavailable, network problems, etc.).
-* **WhatsApp** – opens a WhatsApp chat pre-filled with the request details.
+* **Submit** – disabled until an HTTPS endpoint and bearer token under a
+  Conexão Azul-owned domain are configured. On success, a sticky notification
+  shows the ticket reference returned by that endpoint.
+* **WhatsApp** – opens a WhatsApp chat with Conexão Azul, with the request
+  details pre-filled for user review before sending.
 
-The Submit path sends your request securely to the Cybrosys support system,
-where it becomes a support ticket the Cybrosys team works on. You receive a
-ticket reference to follow up with.
+No request is sent to the former Cybrosys support server. The legacy endpoint
+parameter is intentionally ignored, even when an older database retains it.
 
 Features
 ========
@@ -42,27 +41,32 @@ Features
 
 Data privacy
 ============
-When you click **Submit**, this module sends the details you entered — name,
-email, phone, subject, description and any files you attach — to the Cybrosys
-support server over HTTPS, so that a support ticket can be created for you.
+When a first-party endpoint has been configured, **Submit** sends the details
+entered — name, email, phone, subject, description and attachments — to that
+Conexão Azul endpoint over HTTPS. Without it, the operation fails closed.
 
-* Nothing leaves your database unless a user explicitly clicks **Submit** (or
-  **WhatsApp**). The module does not run in the background or transmit any data
-  on its own.
+* Nothing leaves your database unless a user explicitly clicks **Submit**
+  after configuration, or opens **WhatsApp** and sends a message. The module
+  does not automatically transmit data in the background.
 * Only authenticated internal users can open the support wizard.
 * Use the **Show what will be sent** preview to review the exact data before
   submitting.
-* The destination server is configurable (see *Configuration*); by default it
-  is the official Cybrosys support server.
+* The destination must use HTTPS on ``conexaoazul.com`` or its subdomains.
+  No first-party ticket API is enabled by default.
 
 Configuration
 =============
-The support server URL is stored in a system parameter, so a change of domain
-is a config edit rather than a code release:
+Configuration is intentionally opt-in for automated ticket submission:
 
 * **Settings → Technical → System Parameters**
-* Key: ``cybrosys_support_client.endpoint_url``
-* Default: ``https://support.cybrosys.com/help/request``
+* ``blue_support.whatsapp_number`` – default ``551151924469``
+* ``blue_support.endpoint_url`` – required first-party HTTPS API URL for Submit
+* ``blue_support.api_token`` – required bearer token stored outside Git
+* ``blue_support.tracking_url`` – optional first-party ticket tracking URL
+
+Do not configure an endpoint or token before the Conexão Azul backend is
+validated and the security/QA gate is approved. A pre-existing
+``cybrosys_support_client.endpoint_url`` is ignored for privacy.
 
 If the parameter is missing or blank, the module falls back to the default
 above.
@@ -72,26 +76,25 @@ License
 GNU LESSER GENERAL PUBLIC LICENSE v3.0 (LGPL v3)
 (https://www.gnu.org/licenses/lgpl-3.0-standalone.html)
 
-Company
--------
-* `Cybrosys Techno Solutions <https://cybrosys.com/>`__
+Support provider
+----------------
+* `Conexão Azul Digital <https://www.conexaoazul.com/>`__
 
 Contacts
 --------
-* Mail Contact : odoo@cybrosys.com
-* Website : http://www.cybrosys.com
+* Email: suporte@conexaoazul.com
+* WhatsApp: https://wa.me/551151924469
+* Website: https://www.conexaoazul.com
 
 Bug Tracker
 -----------
 Bugs are tracked on GitHub Issues. In case of trouble, please check there if your issue has already been reported.
 
-Maintainer
-==========
-.. image:: https://cybrosys.com/images/logo.png
-   :target: https://cybrosys.com
-
-This module is maintained by Cybrosys Technologies.
-For support and more information, please visit https://www.cybrosys.com
+Attribution and maintenance
+===========================
+Original module and copyright: Cybrosys Techno Solutions, licensed LGPL-3.
+Conexão Azul Digital maintains this fork's support routing, branding and
+privacy changes. Original license and source attribution are preserved.
 
 Further information
 ===================

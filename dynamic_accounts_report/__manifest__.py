@@ -21,7 +21,7 @@
 ################################################################################
 {
     'name': 'Odoo19 Dynamic Accounting Reports',
-    'version': '19.0.1.0.1',
+    'version': '19.0.1.1.2',
     'category': 'Accounting',
     'summary': "Odoo 19 Accounting Financial Reports,Dynamic Accounting Reports, Dynamic Financial Reports,Dynamic Report Odoo18, Odoo18,Financial Reports, Odoo18 Accounting,Accounting, Odoo Apps",
     'description': "This module creates dynamic Accounting General Ledger, Trial"
@@ -32,10 +32,11 @@
     'company': 'Cybrosys Techno Solutions',
     'maintainer': 'Cybrosys Techno Solutions',
     'website': "https://www.cybrosys.com",
-    'depends': ['base_accounting_kit'],
+    'depends': ['base_accounting_kit','cybrosys_support_client'],
     'data': [
         'security/ir.model.access.csv',
         'views/accounting_report_views.xml',
+        'views/hide_bak_report_menus.xml',
         'report/trial_balance.xml',
         'report/general_ledger_templates.xml',
         'report/financial_report_template.xml',
@@ -72,7 +73,7 @@
             'dynamic_accounts_report/static/src/js/tax_report.js',
         ],
     },
-    'images': ['static/description/banner.gif'],
+    'images': ['static/description/banner.jpg'],
     'license': 'LGPL-3',
     'installable': True,
     'auto_install': False,

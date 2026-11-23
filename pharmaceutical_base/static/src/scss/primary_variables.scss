@@ -1,0 +1,26 @@
+// Pharmaceutical ERP Theme - Primary Variables
+// Petrol-teal chrome with aqua-teal secondary and gold highlight.
+
+$o-brand-odoo: #0b4650;      // Petrol — topbar / chrome
+$o-brand-primary: #0b4650;   // Petrol — primary accent
+$o-brand-secondary: #2a7f86; // Aqua teal — secondary accent
+$o-brand-lightsecondary: #ddefec;  // Teal tint
+
+// ==========================================
+// TYPOGRAPHY — apply the Pharma ERP type system globally
+// Body: Inter · Headings: Plus Jakarta Sans (fonts loaded via the Google
+// Fonts @import in backend_theme.scss).
+//
+// Overriding Odoo's font SCSS variables here is the reliable way to change
+// the font everywhere: a universal `* { font-family }` rule has zero
+// specificity and loses to Odoo's own class-scoped font declarations.
+// This file is in `web._assets_primary_variables`, loaded after web's own
+// `!default` assignment, so our value wins and cascades into Bootstrap's
+// `$font-family-sans-serif` / `$headings-font-family`.
+// ==========================================
+$o-font-family-sans-serif: o-add-unicode-support-font(("Plus Jakarta Sans", "Inter", $o-system-fonts));
+$o-headings-font-family: o-add-unicode-support-font(("Plus Jakarta Sans", "Inter", $o-system-fonts));
+// Navbar height — the petrol top bar is 56px. Setting Odoo's own variable
+// (instead of forcing a CSS height) keeps the brand, menu sections and every
+// systray item vertically centred, because Odoo sizes them from this value.
+$o-navbar-height: 56px;

@@ -1,0 +1,423 @@
+// ============================================================================
+// Pharmaceutical ERP – Dark Mode Overrides
+// ============================================================================
+// This file is registered in web.assets_web_dark and is compiled with the
+// dark SCSS variable set already in scope ($body-color, $input-bg, etc.).
+// No class selectors needed – this CSS is ONLY loaded when dark mode is active.
+// ============================================================================
+
+// ── Design Tokens (dark palette) ─────────────────────────────────────────────
+:root {
+    --pharma-primary:        #3fa3a9;    // aqua — accent on dark
+    --pharma-primary-fill:   #1d5f69;    // petrol 600 — dark primary button
+    --pharma-primary-fill-2: #0b4650;
+    --pharma-primary-600:    #2a7f86;    // hover on the dark primary button
+    --pharma-aqua:           #3fa3a9;
+    --pharma-cream:          #cfe3e1;    // pale teal text/symbols on chrome surfaces
+    --pharma-gold:           #e6a23c;    // gold highlight
+    --pharma-gold-light:     #f5c66b;
+    --pharma-gold-text:      #f5c66b;
+    --pharma-gold-tint:      #3a2e17;
+    --pharma-teal-tint:      #133c45;
+    --pharma-success:        #3fbf87;
+    --pharma-success-tint:   #12382a;
+    --pharma-danger:         #f97066;
+    --pharma-danger-tint:    #3b1a18;
+    --pharma-on-primary:     #FFFFFF;    // white text on the petrol primary button
+    --pharma-secondary:      #FFFFFF;    // white text on the dark topbar
+    --pharma-ink:            #3fa3a9;    // emphasis fonts — aqua
+    --pharma-navy:           #072b33;    // petrol 900 — topbar / sidebar
+    --pharma-navy-light:     #10303a;
+    --pharma-navy-lighter:   #1d4650;
+    --pharma-text-color:     #9db8b6;
+    --pharma-heading:        #e6f0ef;
+    --pharma-muted:          #9db8b6;
+    --pharma-value-color:    #e6f0ef;    // form field values
+    --pharma-white:          #10303a;    // card surface
+    --pharma-grey:           #1d4650;    // hairline border
+    --pharma-gridline:       #17393f;
+    --pharma-bg:             #0c2227;    // deep petrol page bg
+}
+
+// ── Global text & background ──────────────────────────────────────────────────
+body {
+    background-color: var(--pharma-bg);
+    color: var(--pharma-heading);
+}
+
+// ── Navbar / menubar items ────────────────────────────────────────────────────
+// In dark mode var(--pharma-white) resolves to a dark petrol, so menu text
+// would turn dark. Override nav elements explicitly: pale teal at rest,
+// white when hovered / open (the gold underline comes from backend_theme.scss).
+.o_main_navbar {
+    // Menu section items (sub-menus in the top bar)
+    .o_menu_sections {
+        .o_nav_entry,
+        .dropdown-toggle,
+        .dropdown-toggle:not(.o-dropdown-toggle-custo) {
+            color: var(--pharma-cream) !important;
+
+            &:hover, &:focus, &.show, &.active {
+                color: #ffffff !important;
+            }
+        }
+
+        .dropdown.show.dropdown-toggle {
+            color: #ffffff !important;
+        }
+    }
+
+    // Brand / app name
+    .o_menu_brand,
+    .o_menu_brand *,
+    .navbar-brand,
+    .navbar-brand span,
+    .pharma-current-app {
+        color: #ffffff !important;
+    }
+
+    // Systray icons (settings gear, messages bell, etc.)
+    .o_menu_systray {
+        .fa:not(.text-success):not(.text-warning):not(.text-danger):not(.text-muted),
+        .oi:not(.text-success):not(.text-warning):not(.text-danger):not(.text-muted) {
+            color: var(--pharma-cream) !important;
+        }
+
+        // Company selector button (toggle + company name text)
+        .o_switch_company_menu {
+            .dropdown-toggle,
+            .dropdown-toggle:hover,
+            .dropdown-toggle:focus {
+                color: var(--pharma-cream) !important;
+            }
+
+            .oe_topbar_name {
+                color: var(--pharma-cream) !important;
+            }
+        }
+    }
+
+    // Hamburger / menu toggle icon
+    .o_menu_toggle {
+        color: #ffffff !important;
+
+        svg rect { fill: #ffffff; }
+    }
+
+    // General catch-all for any other nav anchors/buttons
+    a, button:not(.btn-primary):not(.btn-secondary):not(.btn-danger) {
+        color: var(--pharma-cream) !important;
+
+        &:hover, &:focus { color: #ffffff !important; }
+    }
+}
+
+// Global navbar icons fallback
+.o_main_navbar .fa:not(.text-success):not(.text-warning):not(.text-danger):not(.text-muted),
+.o_main_navbar .oi:not(.text-success):not(.text-warning):not(.text-danger):not(.text-muted) {
+    color: #ffffff !important;
+}
+
+// Back / exit arrow (apps-menu override) — always pure white
+.o_main_navbar .pharma-back-btn,
+.o_main_navbar .pharma-back-btn i,
+.o_main_navbar .pharma-back-btn .fa,
+.o_main_navbar .pharma-back-btn .bi,
+.pharma-back-btn .fa,
+.pharma-back-btn .bi {
+    color: #ffffff !important;
+}
+
+// ── All inputs, textareas, selects ────────────────────────────────────────────
+// Keep Odoo's default (dark) field background — only the text colour changes.
+.o_input,
+input:not([type="checkbox"]):not([type="radio"]),
+textarea,
+select {
+    color: var(--pharma-value-color) !important;
+    border-color: var(--pharma-grey) !important;
+}
+
+select option {
+    color: var(--pharma-value-color) !important;
+}
+
+// ── Field path chips (Custom Filter / domain editor) ─────────────────────────
+// Odoo paints each chain part with $o-brand-lightsecondary, which the theme
+// sets to the light teal tint (#ddefec) for both modes; the light text the
+// rules above force made the field name invisible. Use a dark petrol chip.
+.o_model_field_selector .o_model_field_selector_value > .o_model_field_selector_chain_part {
+    background: #0b4650 !important;
+    border-color: #2a7f86 !important;
+    color: var(--pharma-value-color) !important;
+}
+
+// ── Form view ─────────────────────────────────────────────────────────────────
+.o_form_view {
+    // Field backgrounds stay Odoo's default dark.
+    color: var(--pharma-value-color);
+
+    // Form sheet keeps Odoo's default dark background.
+
+    .o_horizontal_separator,
+    .o_group .o_horizontal_separator {
+        border-bottom-color: var(--pharma-navy-lighter);
+    }
+
+    .o_field_widget {
+        color: var(--pharma-value-color);
+
+        span:not(.badge)          { color: var(--pharma-value-color) !important; }
+        div:not(.o_input_dropdown):not(.o_datepicker) { color: var(--pharma-value-color) !important; }
+
+        a:not(.btn) {
+            color: var(--pharma-ink) !important;
+            &:hover { color: var(--pharma-primary) !important; }
+        }
+    }
+
+    // Input fields keep the default dark background; only the text changes.
+    .o_field_widget .o_input,
+    .o_field_widget input:not([type="checkbox"]):not([type="radio"]),
+    .o_field_widget textarea,
+    .o_field_many2one_selection .o_input,
+    .o_field_many2one .o_input {
+        color: var(--pharma-value-color) !important;
+        border-color: var(--pharma-grey) !important;
+    }
+
+    // Placeholders — muted grey on the dark field
+    .o_field_widget input::placeholder,
+    .o_field_widget textarea::placeholder,
+    .o_field_widget .o_input::placeholder {
+        color: rgba(157, 184, 182, 0.65) !important;
+        opacity: 1;
+    }
+}
+
+// ── Form labels, section titles & muted text ──────────────────────────────────
+// backend_theme.scss paints labels, group separators and reference links
+// ink (#13292d) for the light canvas. On the dark form sheet they read as
+// invisible, so they are repainted light grey / white here.
+.o_form_view {
+    .o_form_label,
+    label.o_form_label,
+    .o_cell label,
+    .o_wrap_label label,
+    .oe_title label,
+    label {
+        color: var(--pharma-text-color) !important;
+    }
+
+    .o_horizontal_separator,
+    .o_group .o_horizontal_separator {
+        color: var(--pharma-heading) !important;
+    }
+
+    .text-muted,
+    .text-secondary,
+    span.text-muted,
+    small,
+    .o_form_label_help,
+    .o_field_widget .text-muted {
+        color: var(--pharma-text-color) !important;
+    }
+
+    // Reference / many2one open links repainted near-black by the light theme
+    .o_field_widget .o_form_uri > a,
+    .o_field_many2one_selection a,
+    .o_field_widget button.btn-link {
+        color: var(--pharma-ink) !important;
+    }
+}
+
+// ── List view ─────────────────────────────────────────────────────────────────
+.o_list_view {
+    table.o_list_table > tbody > tr.o_data_row {
+        border-top-color: var(--pharma-navy-lighter);
+
+        &:hover { background-color: var(--pharma-navy-light); }
+
+        > td {
+            color: var(--pharma-value-color) !important;
+
+            span:not(.badge),
+            div:not(.badge),
+            .o_field_widget { color: var(--pharma-value-color) !important; }
+
+            a {
+                color: var(--pharma-primary) !important;
+                &:hover { color: var(--pharma-gold-light) !important; }
+            }
+        }
+    }
+
+    .o_list_renderer {
+        background: var(--pharma-white);
+        border-color: var(--pharma-grey);
+    }
+
+    table.o_list_table > thead > tr > th {
+        background: var(--pharma-navy);
+        border-bottom-color: var(--pharma-navy-lighter) !important;
+        color: var(--pharma-text-color) !important;
+
+        &.o_column_sortable:hover { color: var(--pharma-heading) !important; }
+    }
+}
+
+// ── Dashboard (dark) ──────────────────────────────────────────────────────────
+// The dashboard reads every colour from --pd-* properties (dashboard.scss);
+// dark mode swaps them for a dark-petrol palette: petrol cards on a deeper
+// page, light text, aqua accents, and gold kept for highlights.
+// `html` lifts specificity above the light values in dashboard.scss,
+// whatever order the two files load in.
+html .pharma-dashboard-wrapper {
+    --pd-hero: #135b66;       // a shade lighter than the cards so it stands out
+    --pd-hero-600: #2a7480;
+    --pd-primary: #1d5f69;
+    --pd-primary-text: #5fc0c5;
+    --pd-hover-border: #3fa3a9;
+    --pd-strong: #ffffff;
+    --pd-aqua: #4fb3b8;
+    --pd-gold: #e6a23c;
+    --pd-gold-light: #f5c66b;
+    --pd-gold-dark: #f5c66b;
+    --pd-gold-tint: #3a2e17;
+    --pd-teal-tint: #143f48;
+    --pd-danger: #f97066;
+    --pd-danger-tint: #3b1a18;
+    --pd-on-dark: #cfe3e1;
+    --pd-ink: #e6f0ef;
+    --pd-muted: #9db8b6;
+    --pd-border: #1d4650;
+    --pd-gridline: #1d4650;
+    --pd-soft: #0c2227;
+    --pd-page: #0a1c20;
+    --pd-surface: #10303a;
+    --pd-chart-released: #3fa3a9;
+
+    // The global dark input rule paints field text; use the dashboard's own.
+    input:not([type="checkbox"]):not([type="radio"]),
+    .date-filter-pill .date-input,
+    .date-filter-pill .date-sep {
+        color: var(--pd-primary-text) !important;
+    }
+
+    .date-filter-pill .date-input::-webkit-calendar-picker-indicator {
+        filter: invert(78%) sepia(20%) saturate(600%) hue-rotate(130deg);
+    }
+
+    // Bootstrap's dark table variables would paint their own row colours.
+    .table {
+        --bs-table-bg: transparent;
+        --bs-table-color: var(--pd-ink);
+        --bs-table-accent-bg: transparent;
+        --bs-table-hover-bg: var(--pd-soft);
+        --bs-table-hover-color: var(--pd-ink);
+        --bs-table-border-color: var(--pd-border);
+        background-color: transparent !important;
+        color: var(--pd-ink) !important;
+    }
+
+    .table > :not(caption) > * > * {
+        background-color: transparent !important;
+        box-shadow: none !important;
+    }
+
+    .table > thead > tr > th {
+        color: var(--pd-muted) !important;
+    }
+
+    .table-hover > tbody > tr:hover > *,
+    .recent-batches-table tbody tr:hover td {
+        background-color: var(--pd-soft) !important;
+    }
+}
+
+// ── Primary button ────────────────────────────────────────────────────────────
+// In dark mode the primary button uses the petrol 600 tone (#1d5f69) with
+// white text/symbols, brighter than the petrol 900 chrome.
+.btn-primary {
+    background: #1d5f69 !important;
+    border-color: #1d5f69 !important;
+    color: var(--pharma-on-primary) !important;   // #FFFFFF
+
+    .fa, .oi { color: var(--pharma-on-primary) !important; }
+
+    &:hover, &:focus, &:active, &.active {
+        background: #2a7f86 !important;
+        border-color: #2a7f86 !important;
+        color: var(--pharma-on-primary) !important;
+
+        .fa, .oi { color: var(--pharma-on-primary) !important; }
+    }
+}
+
+// ── Statusbar widget – dark mode legibility ───────────────────────────────────
+// The active (selected) arrow renders on a solid petrol fill; its text must be
+// white. Inactive arrows sit on the dark form header, so their text/label is
+// lightened to stay readable.
+.o_field_statusbar > .o_statusbar_status,
+.o_form_view .o_form_statusbar .o_statusbar_status {
+
+    // Active / current segment → solid petrol 600 fill, white text
+    .o_arrow_button.o_arrow_button_current,
+    .o_arrow_button.o_arrow_button_current:disabled,
+    .o_arrow_button.btn-primary,
+    .o_arrow_button:active:not(.o_last) {
+        background-color: #1d5f69 !important;   // petrol 600
+        color: #ffffff !important;
+
+        .fa, .oi { color: #ffffff !important; }
+
+        &::before,
+        &::after {
+            border-left-color: #1d5f69 !important;
+        }
+    }
+
+    // Inactive / not-yet-reached segments → light grey label on dark header
+    .o_arrow_button:not(.o_arrow_button_current):not(.btn-primary) {
+        color: var(--pharma-text-color) !important;
+
+        &:hover {
+            color: #ffffff !important;
+            background-color: var(--pharma-navy-light) !important;
+        }
+    }
+}
+
+// ── Sidebar rail (dark mode) ─────────────────────────────────────────────────
+// This file loads ONLY in dark mode, so no theme selector is needed. The rail
+// takes the petrol navbar colour and pale teal icon tones; in light mode the base
+// sidebar.scss keeps it white.
+.sidebar {
+    --pd-rail: var(--pharma-navy);   // same as navbar (petrol 900 #072b33)
+    --white-color: #FFFFFF;          // icon on the active tile
+    --primary-color: #3fa3a9;        // aqua — hover accent
+    --secondary-color: #9db8b6;      // resting (fallback) icon — muted pale teal
+    // Rail icon/accent tokens for the petrol rail.
+    --sb-icon: #9db8b6;                        // resting icon / label
+    --sb-icon-active: #3fa3a9;                 // hover icon (aqua)
+    --sb-icon-on-active: #FFFFFF;              // icon on the active tile
+    --sb-hover-bg: rgba(63, 163, 169, 0.18);   // hover tile (aqua wash)
+    --sb-active-bg: #2a7f86;                   // active tile (aqua 600)
+    --sb-bar: transparent;
+    background-color: var(--pharma-navy) !important;
+    border-right-color: #10303a;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.30);
+}
+
+// ── Premium feature notice ───────────────────────────────────────────────────
+.o_pharma_premium_notice,
+.o_pharma_premium_setting,
+.o_pharma_premium_dialog {
+    --premium-bg: #2a2416;
+    --premium-card-bg: #10303a;
+    --premium-border: #5c4a1f;
+    --premium-accent: #f5c66b;      // light gold text on dark
+    --premium-accent-bg: #3a2e17;
+    --premium-title: #e6f0ef;
+    --premium-text: #9db8b6;
+}

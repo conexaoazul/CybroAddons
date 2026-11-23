@@ -1,0 +1,68 @@
+/*
+ * pharma.bmr — Execution Steps list.
+ *
+ * The per-row actions (Operator / Supervisor sign-off, Hold, Release) render as
+ * compact FontAwesome icon buttons with tooltips — the same pattern the native
+ * Manufacturing Order component lines use, keeping the action column narrow.
+ *
+ * Colours live here (not as inline `style=` / `t-attf-style=` in the view arch,
+ * which Odoo forbids in an arch). Each action gets its own colour so the icons
+ * stay readable at a glance.
+ */
+.o_pharma_step_btn {
+    margin: 0 0.35rem;
+    font-size: 1.05rem;
+    cursor: pointer;
+}
+
+.o_pharma_step_btn:hover {
+    opacity: 0.75;
+}
+
+/* Operator sign-off — petrol */
+.o_list_renderer .o_list_table .o_pharma_step_op,
+.o_list_renderer .o_list_table .o_pharma_step_op i {
+    color: #0b4650 !important;
+}
+
+/* Supervisor sign-off — teal-green */
+.o_list_renderer .o_list_table .o_pharma_step_sup,
+.o_list_renderer .o_list_table .o_pharma_step_sup i {
+    color: #1e8a5f !important;
+}
+
+/* Hold — gold */
+.o_list_renderer .o_list_table .o_pharma_step_hold,
+.o_list_renderer .o_list_table .o_pharma_step_hold i {
+    color: #c4861f !important;
+}
+
+/* Release hold — grey */
+.o_list_renderer .o_list_table .o_pharma_step_release,
+.o_list_renderer .o_list_table .o_pharma_step_release i {
+    color: #56696c !important;
+}
+
+/*
+ * Prevent adjacent row action buttons in list views from wrapping vertically
+ * when column widths are computed during initial form rendering/transitions.
+ */
+.o_list_renderer .o_list_table td.o_list_button > div {
+    flex-wrap: nowrap !important;
+}
+
+
+/*
+ * BMR Execution Steps: Odoo sizes the button column once, when the list
+ * first renders. On a draft BMR every step button is hidden, so the column
+ * comes out narrow; once the BMR starts, up to three buttons (capture,
+ * operator sign-off, hold) appear and spill over the delete column.
+ * Reserve room for them.
+ */
+.o_pharma_bmr_steps .o_list_renderer .o_list_table th.o_list_button {
+    width: 130px !important;
+}
+
+.o_pharma_bmr_steps .o_list_renderer .o_list_table td.o_list_button {
+    overflow: hidden;
+}
