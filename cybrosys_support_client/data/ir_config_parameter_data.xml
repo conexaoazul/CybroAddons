@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo noupdate="1">
 
-    <!-- Endpoint the support wizard POSTs tickets to. Edit this instead of
-         the code when the support server domain changes. -->
-    <record id="param_support_endpoint_url" model="ir.config_parameter">
-        <field name="key">cybrosys_support_client.endpoint_url</field>
-        <field name="value">https://support.cybrosys.com/help/request</field>
+    <!-- Only the public WhatsApp destination has a safe default.
+         The first-party ticket endpoint and API token must be configured
+         explicitly after a separate security and integration gate. -->
+    <record id="param_blue_support_whatsapp" model="ir.config_parameter">
+        <field name="key">blue_support.whatsapp_number</field>
+        <field name="value">551151924469</field>
     </record>
 
 </odoo>

@@ -6,8 +6,8 @@
             t-on-click="openSupport"
             role="button"
             tabindex="0"
-            title="Contact Cybrosys Support (Alt+Shift+H)"
-            aria-label="Contact Cybrosys Support (Alt+Shift+H)"
+            title="Contatar suporte Conexão Azul (Alt+Shift+H)"
+            aria-label="Contatar suporte Conexão Azul (Alt+Shift+H)"
         >
             <i class="fa fa-headphones" aria-hidden="true" />
         </div>
