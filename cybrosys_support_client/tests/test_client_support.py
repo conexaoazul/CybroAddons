@@ -151,7 +151,7 @@ class TestClientSupport(TransactionCase):
     def test_other_transport_errors_are_redacted(self):
         with patch.object(
             client_support.requests, 'post',
-            side_effect=client_support.requests.InvalidURL('invalid request')
+            side_effect=client_support.requests.exceptions.InvalidURL('invalid request')
         ):
             with self.assertRaises(ValidationError) as error:
                 self._wizard().confirm_button()
