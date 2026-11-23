@@ -83,16 +83,16 @@ Configuration
 - Install our custom addon
 
 License
--------
+---------
 General Public License, Version 3 (LGPL v3).
 (https://www.gnu.org/licenses/lgpl-3.0-standalone.html)
 
 Company
--------
+---------
 * `Cybrosys Techno Solutions <https://conexaoazul.com/>`__
 
 Credits
--------
+---------
 * Developers : (v15) Midilaj,
                (v16) Midilaj,
                (v16 Amazon S3,NextCloud) Anfas Faisal K,
