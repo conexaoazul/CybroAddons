@@ -251,6 +251,7 @@ class ClientSupport(models.TransientModel):
             headers={
                 'Authorization': 'Bearer %s' % token,
                 'X-Idempotency-Key': self.request_key,
+                'X-Correlation-ID': self.request_key,
                 'Accept': 'application/json',
             },
             timeout=SUPPORT_TIMEOUT,
