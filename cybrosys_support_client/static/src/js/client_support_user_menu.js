@@ -7,10 +7,10 @@ function cybrosysSupportItem(env) {
     return {
         type: "item",
         id: "cybrosys_support",
-        description: _t("Cybrosys Support"),
+        description: _t("Suporte Conexão Azul"),
         callback: () => {
             env.services.action.doAction({
-                name: _t("Cybrosys Support"),
+                name: _t("Suporte Conexão Azul"),
                 type: "ir.actions.act_window",
                 res_model: "client.support",
                 view_mode: "form",

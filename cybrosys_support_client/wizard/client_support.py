@@ -21,6 +21,7 @@
 ##############################################################################
 import json
 import logging
+import re
 from urllib.parse import quote, urlsplit
 
 import requests
@@ -29,18 +30,17 @@ from markupsafe import Markup
 from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
 
-# Config parameter that holds the support endpoint URL. Falls back to
-# DEFAULT_SUPPORT_ENDPOINT when unset, so a domain change is a config edit
-# rather than a code release.
-SUPPORT_ENDPOINT_PARAM = 'cybrosys_support_client.endpoint_url'
-DEFAULT_SUPPORT_ENDPOINT = 'https://support.cybrosys.com/help/request'
+# Keep the technical module name for upgrades, but never inherit its former
+# third-party endpoint or token when using Conexao Azul-branded support.
+SUPPORT_ENDPOINT_PARAM = 'blue_support.endpoint_url'
+SUPPORT_API_TOKEN_PARAM = 'blue_support.api_token'
+SUPPORT_TRACKING_URL_PARAM = 'blue_support.tracking_url'
+SUPPORT_WHATSAPP_PARAM = 'blue_support.whatsapp_number'
+DEFAULT_SUPPORT_WHATSAPP = '551151924469'
+SUPPORT_ALLOWED_HOST = 'conexaoazul.com'
 SUPPORT_TIMEOUT = (5, 20)  # (connect, read) seconds
 
-# Identifies this module to the support server, sent in every request.
-SUPPORT_API_KEY_HEADER = 'X-Cybrosys-Token'
-SUPPORT_API_KEY = '6d2fb8de84ef3569e5d6b103'
-
-# Must match the support server's limits (cybrosys_support_server).
+# Conservative attachment limits; confirm with our own endpoint before enabling.
 MAX_ATTACHMENTS = 5
 MAX_ATTACHMENT_SIZE = 3 * 1024 * 1024  # 3 MB per file
 ALLOWED_EXTENSIONS = ('.png', '.jpg', '.jpeg', '.gif', '.webp', '.bmp',
@@ -94,7 +94,7 @@ class ClientSupport(models.TransientModel):
         help='How urgent is this issue?')
     show_payload = fields.Boolean(
         string='Show what will be sent',
-        help='Preview the exact data sent to Cybrosys before submitting.')
+        help='Preview the exact data sent to Conexão Azul before submitting.')
     payload_preview = fields.Text(
         string='Payload preview',
         compute='_compute_payload_preview',
@@ -156,18 +156,46 @@ class ClientSupport(models.TransientModel):
 
     @api.model
     def _get_support_endpoint(self):
-        """Return the support endpoint URL from config, or the default."""
-        endpoint = self.env['ir.config_parameter'].sudo().get_param(
-            SUPPORT_ENDPOINT_PARAM)
-        return (endpoint or '').strip() or DEFAULT_SUPPORT_ENDPOINT
+        """Only send to an explicitly configured first-party HTTPS endpoint."""
+        endpoint = (self.env['ir.config_parameter'].sudo().get_param(
+            SUPPORT_ENDPOINT_PARAM) or '').strip()
+        if not endpoint:
+            raise ValidationError(_(
+                "Support ticket submission is not configured yet. "
+                "Please use the WhatsApp button to contact Conexão Azul."))
+        self._validate_support_url(endpoint)
+        return endpoint
+
+    @api.model
+    def _validate_support_url(self, url):
+        parts = urlsplit(url)
+        host = (parts.hostname or '').lower()
+        if (parts.scheme != 'https'
+                or not (host == SUPPORT_ALLOWED_HOST
+                        or host.endswith('.' + SUPPORT_ALLOWED_HOST))
+                or parts.username or parts.password
+                or parts.query or parts.fragment):
+            raise ValidationError(_(
+                "The support URL must use HTTPS and a Conexão Azul domain."))
+
+    @api.model
+    def _get_support_api_token(self):
+        token = (self.env['ir.config_parameter'].sudo().get_param(
+            SUPPORT_API_TOKEN_PARAM) or '').strip()
+        if not token:
+            raise ValidationError(_(
+                "Support ticket authentication is not configured yet. "
+                "Please use the WhatsApp button to contact Conexão Azul."))
+        return token
 
     @api.model
     def _get_tracking_url(self):
-        """Public /track-ticket URL on the same host as the support endpoint."""
-        parts = urlsplit(self._get_support_endpoint())
-        if parts.scheme and parts.netloc:
-            return '%s://%s/track-ticket' % (parts.scheme, parts.netloc)
-        return 'https://support.cybrosys.com/track-ticket'
+        """Optional first-party tracking URL, not an inferred endpoint path."""
+        url = (self.env['ir.config_parameter'].sudo().get_param(
+            SUPPORT_TRACKING_URL_PARAM) or '').strip()
+        if url:
+            self._validate_support_url(url)
+        return url
 
     def _check_attachments(self):
         """Refuse attachments the support server would reject."""
@@ -189,17 +217,19 @@ class ClientSupport(models.TransientModel):
 
     def _submit_support_request(self):
         self.ensure_one()
+        endpoint = self._get_support_endpoint()
+        token = self._get_support_api_token()
         response = requests.post(
-            self._get_support_endpoint(),
+            endpoint,
             json=self._build_payload(),
-            headers={SUPPORT_API_KEY_HEADER: SUPPORT_API_KEY},
+            headers={'Authorization': 'Bearer %s' % token},
             timeout=SUPPORT_TIMEOUT,
         )
         response.raise_for_status()
         return response.json()
 
     def confirm_button(self):
-        """Submit the ticket to Cybrosys support."""
+        """Submit only when the Conexão Azul support backend is configured."""
         self.ensure_one()
         self._check_attachments()
         try:
@@ -258,10 +288,10 @@ class ClientSupport(models.TransientModel):
                 lines.append(_("Ticket Reference : %s") % ticket_id)
             lines.extend([
                 '',
-                _("Save this reference to follow up with Cybrosys."),
-                '',
-                _("Track your ticket status here: %s"),
+                _("Save this reference to follow up with Conexão Azul."),
             ])
+            if track_url:
+                lines.extend(['', _("Track your ticket status here: %s")])
             message = '\n'.join(lines)
 
             return {
@@ -269,7 +299,8 @@ class ClientSupport(models.TransientModel):
                 'tag': 'display_notification',
                 'params': {
                     'message': message,
-                    'links': [{'label': track_url, 'url': track_url}],
+                    'links': ([{'label': track_url, 'url': track_url}]
+                              if track_url else []),
                     'type': 'success',
                     'sticky': True,
                     'className': 'o_cybrosys_ticket_notification',
@@ -279,7 +310,7 @@ class ClientSupport(models.TransientModel):
         error_messages = {
             'unauthorized': _(
                 "The support server rejected this request. Please update the "
-                "Cybrosys Support Assistant module to the latest version."),
+                "Conexão Azul Support Assistant module to the latest version."),
             'rate_limited': _(
                 "Too many support requests were sent recently. Please try "
                 "again later."),
@@ -308,10 +339,14 @@ class ClientSupport(models.TransientModel):
         )
         # wa.me requires the number in full international format with digits
         # only — no '+', spaces or dashes.
-        phone_number = '919074270811'
+        raw_number = self.env['ir.config_parameter'].sudo().get_param(
+            SUPPORT_WHATSAPP_PARAM) or DEFAULT_SUPPORT_WHATSAPP
+        phone_number = re.sub(r'\D', '', raw_number)
+        if not 10 <= len(phone_number) <= 15:
+            raise ValidationError(_("Configure a valid support WhatsApp number."))
         return {
             'type': 'ir.actions.act_url',
-            'url': f"https://wa.me/{phone_number}?text={quote(message)}",
+            'url': f"https://wa.me/{phone_number}?text={quote(message, safe='')}",
             'target': 'new',
             'res_id': self.id,
         }

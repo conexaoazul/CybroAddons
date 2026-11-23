@@ -16,7 +16,7 @@ export class ClientSupportSystray extends Component {
 
     async openSupport() {
         return this.actionService.doAction({
-            name: "Cybrosys Support",
+            name: "Suporte Conexão Azul",
             type: "ir.actions.act_window",
             res_model: "client.support",
             view_mode: "form",
