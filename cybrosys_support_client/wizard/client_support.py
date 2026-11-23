@@ -288,6 +288,16 @@ class ClientSupport(models.TransientModel):
                     "Your attachments are too large. "
                     "Please reduce their size and try again."
                 )) from None
+            if status_code == 429:
+                raise ValidationError(_(
+                    "Too many support requests were sent recently. Please try "
+                    "again later."
+                )) from None
+            if status_code in (401, 403):
+                raise ValidationError(_(
+                    "Support ticket authentication is not configured yet. "
+                    "Please use the WhatsApp button to contact Conexão Azul."
+                )) from None
             if status_code >= 500:
                 raise ValidationError(_(
                     "The support service is having issues. "
@@ -310,6 +320,12 @@ class ClientSupport(models.TransientModel):
             raise ValidationError(_(
                 "The support service returned an unexpected response. "
                 "Please try again later."
+            )) from None
+        except requests.RequestException:
+            _logger.exception("Support transport could not complete request")
+            raise ValidationError(_(
+                "Could not reach the support service. "
+                "Please check your network and try again."
             )) from None
 
         if response_status.get('result', {}).get('message') == 'success':
