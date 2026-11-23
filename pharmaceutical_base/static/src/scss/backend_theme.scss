@@ -1,0 +1,1599 @@
+// Pharmaceutical ERP Theme — Pharma Color System
+// Font family preserved (Plus Jakarta Sans / Inter / JetBrains Mono); the Pharma
+// Color System's type *styles* (weights, uppercase tracking, tabular numerals) are
+// applied via the rules below.
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400..700&family=Plus+Jakarta+Sans:wght@500..800&family=JetBrains+Mono:wght@400..500&display=swap');
+@import url("https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.4.0/font/bootstrap-icons.min.css");
+
+// Palette: petrol-teal chrome, aqua-teal secondary accent, gold highlight.
+:root {
+    --pharma-primary: #0b4650;        // Petrol — accent (links, icons, active)
+    --pharma-primary-fill: #0b4650;   // Petrol — button fill
+    --pharma-primary-fill-2: #072b33; // Petrol 900 — gradient / hover end
+    --pharma-primary-600: #1d5f69;    // Petrol 600 — hover accent on dark surfaces
+    --pharma-aqua: #2a7f86;           // Aqua teal — secondary accent
+    --pharma-cream: #cfe3e1;          // pale teal — text/symbols on chrome surfaces
+    --pharma-gold: #e6a23c;           // Gold — highlight (underline, badges, avatar)
+    --pharma-gold-light: #f5c66b;     // light gold text on dark surfaces
+    --pharma-gold-text: #8a5a0b;      // dark gold text on light surfaces
+    --pharma-gold-tint: #fbf0dc;      // gold chip background
+    --pharma-teal-tint: #ddefec;      // teal chip background (petrol text)
+    --pharma-success: #17694a;        // teal-green text on the success chip
+    --pharma-success-tint: #e1f2ea;   // success chip background
+    --pharma-danger: #b42318;
+    --pharma-danger-tint: #fdecea;
+    --pharma-pass-solid: #2e7d32;     // natural green — ribbons, pass badges
+    --pharma-fail-solid: #c62828;     // red — fail badges
+    --pharma-on-primary: #FFFFFF;     // white text on the petrol primary button
+    --pharma-secondary: #FFFFFF;      // white brand / active text on the topbar
+    --pharma-accent: #e6a23c;
+    --pharma-ink: #0b4650;            // Petrol — emphasis fonts / smart-button values
+    --pharma-navy: #072b33;           // Petrol 900 — topbar surface
+    --pharma-navy-light: #0b4650;
+    --pharma-navy-lighter: #1d5f69;
+    --pharma-text-color: #13292d;     // Ink — text color for form elements
+    --pharma-heading: #13292d;        // Ink — headings
+    --pharma-muted: #56696c;          // muted secondary text / resting icons
+    --pharma-white: #FFFFFF;          // card surface
+    --pharma-grey: #dce7e6;           // hairline border
+    --pharma-gridline: #e3eceb;       // table row / separator lines
+    --pharma-bg: #f4f7f7;             // page background
+    --pharma-font-heading: 'Plus Jakarta Sans', 'Inter', sans-serif;
+    --pharma-font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+    // App-launcher / home-menu artwork. Shared by the community app switcher
+    // (.app_container) and the enterprise home menu (.o_home_menu_background).
+    --pharma-launcher-bg-color: #cfe3e1;
+    --pharma-launcher-bg-image: url("/pharmaceutical_base/static/src/img/pharma_launcher_background.png");
+}
+
+[data-bs-theme="dark"] {
+    --pharma-primary: #3fa3a9;        // Aqua — accent on dark
+    --pharma-primary-fill: #1d5f69;   // Petrol 600 — dark-mode primary button
+    --pharma-primary-fill-2: #0b4650;
+    --pharma-primary-600: #2a7f86;
+    --pharma-aqua: #3fa3a9;
+    --pharma-cream: #cfe3e1;          // pale teal text/symbols on chrome surfaces
+    --pharma-gold: #e6a23c;           // gold accent
+    --pharma-gold-light: #f5c66b;
+    --pharma-gold-text: #f5c66b;      // gold text reads light on dark
+    --pharma-gold-tint: #3a2e17;
+    --pharma-teal-tint: #133c45;
+    --pharma-success: #3fbf87;
+    --pharma-success-tint: #12382a;
+    --pharma-danger: #f97066;
+    --pharma-danger-tint: #3b1a18;
+    --pharma-on-primary: #FFFFFF;     // white text on the petrol primary button
+    --pharma-secondary: #FFFFFF;      // white text on the chrome topbar
+    --pharma-ink: #3fa3a9;            // emphasis fonts — aqua
+    --pharma-navy: #072b33;           // Petrol 900 — topbar / sidebar surface
+    --pharma-navy-light: #10303a;
+    --pharma-navy-lighter: #1d4650;
+    --pharma-text-color: #9db8b6;
+    --pharma-heading: #e6f0ef;
+    --pharma-muted: #9db8b6;
+    --pharma-value-color: #e6f0ef;    // form field values (dark)
+    --pharma-white: #10303a;          // card surface
+    --pharma-grey: #1d4650;           // hairline border
+    --pharma-gridline: #17393f;
+    --pharma-bg: #0c2227;             // deep petrol page bg
+}
+
+// Notebook Tabs Color Overrides
+.o_notebook {
+    --Notebook__link-border-top-color--active: var(--pharma-ink) !important;
+    --Notebook__link-color--active: var(--pharma-ink) !important;
+}
+
+// ==========================================
+// GLOBAL
+// ==========================================
+* {
+    font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+}
+
+body {
+    background-color: var(--pharma-bg);
+    overscroll-behavior: none;
+}
+
+// Display font for headings / titles (matches design system)
+h1, h2, h3, h4, h5, h6,
+.o_form_view .oe_title,
+.o_breadcrumb .active,
+.o_last_breadcrumb_item > span,
+.o_menu_brand,
+.pharma-current-app,
+.pharma-home-brand-text {
+    font-family: var(--pharma-font-heading);
+    letter-spacing: -0.01em;
+}
+
+// Everything follows Plus Jakarta Sans — including numeric fields.
+// (The .font-monospace utility keeps its mono font for explicit code use.)
+.font-monospace {
+    font-family: var(--pharma-font-mono);
+}
+
+// ==========================================
+// NAVBAR
+// ==========================================
+.o_main_navbar {
+    background-color: var(--pharma-navy) !important;   // Petrol 900 #072b33
+    border-bottom: none !important;
+    margin-bottom: 0 !important;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 1030;
+
+    // Swap the navbar brand logo to icon2.png ONLY while the Pharmaceutical ERP
+    // app is active (the o_pharma_navbar_brand marker class is added in
+    // menu_panels.xml). Other apps are untouched, and icon.png remains the app
+    // icon in the apps menu / home grid / sidebar tray.
+    &.o_pharma_navbar_brand .o_menu_brand_icon {
+        content: url("/pharmaceutical_base/static/description/icon2.png");
+        object-fit: contain;
+    }
+
+    .navbar-brand,
+    .pharma-brand {
+        color: var(--pharma-secondary) !important;
+
+        span {
+            color: var(--pharma-secondary) !important;
+            opacity: 1 !important;
+            max-width: none !important;
+            display: inline !important;
+        }
+
+        i,
+        .bi {
+            color: var(--pharma-secondary) !important;
+        }
+    }
+
+    // Back / exit arrow (apps-menu override) — always pure white
+    .pharma-back-btn,
+    .pharma-back-btn i,
+    .pharma-back-btn .fa,
+    .pharma-back-btn .bi {
+        color: #ffffff !important;
+    }
+
+    .o_menu_brand {
+        color: var(--pharma-secondary) !important;
+        font-weight: 700;
+        font-size: 17px;
+        letter-spacing: 0.5px;
+    }
+
+    // Current module name shown right after the arrow
+    .pharma-current-app {
+        color: var(--pharma-secondary) !important;
+        font-weight: 700;
+        font-size: 17px;
+        letter-spacing: 0.3px;
+        padding: 0 10px !important;
+        text-decoration: none !important;
+        display: flex !important;
+        align-items: center;
+        margin-left: 4px;
+
+        // Pipe separator between arrow and module name
+        &::before {
+            content: "|";
+            color: rgba(255, 255, 255, 0.25);
+            margin-right: 10px;
+            font-weight: 300;
+        }
+
+        &:hover {
+            text-decoration: none !important;
+        }
+    }
+
+    .oe_topbar_name {
+        color: var(--pharma-cream) !important;
+    }
+
+    // Menu items: pale teal; the open / active item turns white with a 3px
+    // gold underline drawn on the bottom edge of the bar.
+    .o_menu_sections .dropdown-toggle,
+    .o_menu_sections .o_nav_entry {
+        position: relative;
+        background: transparent !important;
+        color: var(--pharma-cream) !important;
+        font-size: 15px;
+        font-weight: 600 !important;
+        opacity: 1;
+
+        &::after {
+            content: none;
+        }
+
+        &:hover,
+        &:focus {
+            background-color: rgba(255, 255, 255, 0.08) !important;
+            color: #ffffff !important;
+        }
+
+        // .o_pharma_section_active marks the section of the current action
+        // (set by js/search_apps.js), so the gold line stays under it.
+        &.show,
+        &.active,
+        &.o_pharma_section_active,
+        &[aria-expanded="true"] {
+            color: #ffffff !important;
+
+            &::after {
+                content: "";
+                display: block;
+                position: absolute;
+                left: 8px;
+                right: 8px;
+                bottom: 0;
+                height: 3px;
+                margin: 0;
+                border: 0;
+                border-radius: 3px 3px 0 0;
+                background-color: var(--pharma-gold);
+            }
+        }
+    }
+
+    .o_menu_systray {
+
+        .fa:not(.text-success):not(.text-warning):not(.text-danger):not(.text-muted):not(.o_icon_employee_absent):not(.o-yellow):not(.text-700),
+        .oi:not(.text-success):not(.text-warning):not(.text-danger):not(.text-muted):not(.o_icon_employee_absent):not(.o-yellow):not(.text-700) {
+            color: var(--pharma-cream) !important;
+        }
+
+        // Notification counters — gold with petrol text
+        .badge,
+        .o-mail-MessagingMenu-counter,
+        .o_activity_menu_counter {
+            background-color: var(--pharma-gold) !important;
+            color: var(--pharma-navy) !important;
+            font-weight: 700;
+        }
+
+        // User avatar — the avatar is an <img>, so it can only carry a gold ring
+        .o_user_menu .o_avatar,
+        .o_user_menu .o_user_avatar {
+            background-color: var(--pharma-gold);
+            box-shadow: 0 0 0 2px var(--pharma-gold);
+        }
+    }
+
+    .container-fluid {
+        height: 100%;
+        align-items: center;
+        padding-left: 0 !important;
+    }
+
+    // App logo + name (top-left). Odoo sizes the logo from the navbar height,
+    // so at 56px it grows into the app name; pin it to 32px, centred, with a
+    // clear gap before "Pharmaceutical ERP".
+    .o_menu_toggle.hasImage .o_menu_brand_icon {
+        width: 32px !important;
+        height: 32px !important;
+        left: 18px !important;
+        top: 50% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        transform: translateY(-50%);
+        object-fit: contain;
+    }
+
+    .o_menu_toggle.hasImage .o_menu_brand {
+        margin-left: 30px !important;
+        align-items: center;
+    }
+
+    .o_menu_sections {
+        height: 100%;
+        align-items: center;
+    }
+
+    // Overrides the global grey .oi rule above
+    .pharma-nav-arrow {
+
+        .oi,
+        .bi {
+            color: var(--pharma-secondary) !important;
+        }
+    }
+}
+
+// Global navbar icons fallback — keep every topbar icon (home-menu / exit arrow,
+// previous-view arrow, breadcrumb & pager) white on the petrol navbar in light mode.
+// (Mirrors the dark theme; the more-specific systray rule keeps its own colour.)
+.o_main_navbar .fa:not(.text-success):not(.text-warning):not(.text-danger):not(.text-muted),
+.o_main_navbar .oi:not(.text-success):not(.text-warning):not(.text-danger):not(.text-muted),
+.o_main_navbar .bi:not(.text-success):not(.text-warning):not(.text-danger):not(.text-muted),
+.o_main_navbar .o_back_button,
+.o_main_navbar .o_back_button *,
+.o_main_navbar .breadcrumb,
+.o_main_navbar .breadcrumb *,
+.o_main_navbar .o_control_panel_breadcrumbs,
+.o_main_navbar .o_control_panel_breadcrumbs *,
+.o_main_navbar .o_pager,
+.o_main_navbar .o_pager button,
+.o_main_navbar .o_pager .oi,
+.o_main_navbar .o_pager .fa {
+    color: #ffffff !important;
+}
+
+// Enterprise home-menu toggle is an inline <svg fill="currentColor">, not an
+// icon-font glyph, so the rule above misses it. Keep it pale teal on the petrol bar.
+// Doing this in SCSS (instead of editing the core enterprise template) avoids
+// the stale-render glitch and scopes the change to this module.
+.o_main_navbar .o_menu_toggle_icon {
+    color: var(--pharma-cream) !important;
+}
+
+.navbar {
+    background: var(--pharma-navy) !important;
+    border-bottom: none !important;
+    margin-bottom: 0 !important;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+// ==========================================
+// HOME PAGE — hide module name label only
+// ==========================================
+body:has(.app_container) {
+    .o_main_navbar {
+
+        .pharma-current-app,
+        .o_menu_brand {
+            display: none !important;
+        }
+    }
+}
+
+// PHARMA ERP brand shown on the home page (after the right arrow)
+.pharma-home-brand {
+    gap: 0;
+    padding: 0 4px 0 8px;
+    pointer-events: none; // decorative — not a button
+
+    &:first-child {
+        padding-left: 14px;
+    }
+
+    .bi-droplet-fill {
+        color: var(--pharma-cream) !important;
+        font-size: 20px;
+        margin-right: 7px;
+        flex-shrink: 0;
+    }
+
+    .pharma-home-brand-text {
+        color: var(--pharma-cream) !important;
+        font-weight: 700;
+        font-size: 20px;
+        letter-spacing: 0.3px;
+    }
+}
+
+// Navigation arrows — home icon (module page) and grid icon (home page)
+.pharma-nav-arrow {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center;
+    align-self: stretch; // stretches to exact height of navbar for perfect centering
+    padding: 0 14px !important;
+    margin: 0 !important;
+    flex-shrink: 0;
+    cursor: pointer;
+    background: transparent !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    margin-left: 10px !important;
+
+    .oi,
+    .bi {
+        font-size: 20px;
+        color: var(--pharma-cream) !important;
+        transition: opacity 0.2s ease;
+        line-height: 1;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    &:hover,
+    &:focus {
+        background: transparent !important;
+        outline: none !important;
+        box-shadow: none !important;
+
+        .oi,
+        .bi {
+            opacity: 0.75;
+        }
+    }
+}
+
+.o_user_menu .dropdown-toggle .o_user_avatar {
+    border-radius: 50% !important;
+}
+
+// Icon colors - content area gets the accent, navbar gets pale teal
+.o_action_manager .fa,
+.o_action_manager .oi {
+    color: var(--pharma-primary) !important;
+}
+
+// Exclude status colors from the navbar grey override
+.o_main_navbar .fa:not(.text-success):not(.text-warning):not(.text-danger):not(.text-muted):not(.o_icon_employee_absent):not(.o-yellow):not(.text-700),
+.o_main_navbar .oi:not(.text-success):not(.text-warning):not(.text-danger):not(.text-muted):not(.o_icon_employee_absent):not(.o-yellow):not(.text-700) {
+    color: var(--pharma-cream) !important;
+}
+
+// ==========================================
+// SIDEBAR - Icon-only, no hover expand
+// ==========================================
+.sidebar_img {
+    width: 28px;
+    height: 28px;
+    border-radius: 4px;
+}
+
+html .o_web_client>.o_action_manager {
+    // Reserve space for the fixed 75px icon rail.
+    margin-left: 75px;
+    transition: margin-left 0.4s ease-in-out;
+    overflow-x: hidden;
+}
+
+// Rail collapsed — reclaim the space.
+.o_web_client:has(.sidebar.o_hidden)>.o_action_manager {
+    margin-left: 0 !important;
+}
+
+html .o_web_client>.o_action_manager:has(.app_container) {
+    margin-left: 0 !important;
+    padding-top: 0 !important;
+    height: calc(100vh - 56px);
+    min-height: calc(100vh - 56px);
+    overflow: hidden;
+}
+
+.o_control_panel {
+    padding-top: 4px !important;
+    padding-bottom: 4px !important;
+}
+
+// ==========================================================================
+// CONTROL PANEL — form save / discard (cloud · ✕) alignment
+// Odoo pins the status indicator with `align-self-md-end`, and its flex parent
+// `.o_control_panel_breadcrumbs` carries `h-lg-100` (stretches to the full
+// control-panel row height). That drops the end-aligned indicator to the
+// bottom of the tall row instead of onto the record-name line — the save icons
+// end up below / misaligned with the serial number. Capping the breadcrumbs
+// block to its own content height lands the end-alignment back on the name,
+// restoring Odoo's default inline save/discard presentation.
+// ==========================================================================
+.o_control_panel_breadcrumbs {
+    height: auto !important;
+    align-self: center;
+
+    .o_form_status_indicator {
+        align-self: flex-end !important;   // sit on the record-name row
+    }
+}
+
+.sidebar {
+    // Size, position and surface come from sidebar.scss (loaded after this file).
+    left: 0;
+    // Rail icon/accent tokens (overridden per theme).
+    --sb-icon: #56696c;                       // resting icon / label (muted)
+    --sb-icon-active: #0b4650;                // hover icon (petrol)
+    --sb-icon-on-active: #0b4650;             // icon on the light active tile
+    --sb-hover-bg: #ddefec;                   // hover tile (teal tint)
+    --sb-active-bg: #c9e4e0;                  // active tile (light aqua tint)
+    --sb-bar: transparent;                    // no side bar: the tile is the indicator
+    list-style: none !important;
+
+    // Icon-only - no expand on hover
+    span {
+        display: none !important;
+    }
+
+    .sidebar_links {
+        padding-left: 0;
+        margin: 0;
+        list-style: none !important;
+    }
+
+    .sidbar-item {
+        position: relative;
+        padding: 6px 0;
+        margin: 2px 0;
+        border-radius: 8px;
+        list-style: none !important;
+        transition: background-color 0.3s ease;
+
+        &::marker,
+        &::before {
+            content: none !important;
+            display: none !important;
+        }
+
+        a {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            column-gap: 10px;
+            color: var(--sb-icon) !important;
+            text-decoration: none;
+            padding: 6px 8px;
+            transition: color 0.3s ease;
+
+            img.sidebar_img {
+                width: 28px;
+                height: 28px;
+                border-radius: 4px;
+                flex-shrink: 0;
+            }
+
+            .bi {
+                font-size: 24px;
+                color: var(--sb-icon) !important;
+                flex-shrink: 0;
+                width: 28px;
+                text-align: center;
+            }
+        }
+
+        &:hover {
+            background-color: var(--sb-hover-bg);
+
+            a {
+                color: var(--sb-icon-active) !important;
+            }
+
+            a .bi {
+                color: var(--sb-icon-active) !important;
+            }
+        }
+
+        &.active {
+            background-color: var(--sb-active-bg);
+
+            a {
+                color: var(--sb-icon-on-active) !important;
+            }
+
+            a .bi,
+            a img {
+                color: var(--sb-icon-on-active) !important;
+            }
+        }
+    }
+}
+
+// ==========================================
+// HOME MENU / APP CONTAINER
+// ==========================================
+.app_container {
+    // Pharma ERP app-switcher background: the launcher artwork from the design
+    // system (sky over a faded plant / silo skyline) on a pale teal base.
+    // Community renders this container; enterprise uses .o_home_menu instead —
+    // both are pointed at the same asset (see HOME MENU BACKGROUND below).
+    background-color: var(--pharma-launcher-bg-color);
+    background-image: var(--pharma-launcher-bg-image);
+    background-repeat: no-repeat;
+    background-position: center bottom;
+    background-size: cover;
+    height: 100%;
+    min-height: 100%;
+    width: 100%;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    margin-top: 0;
+    padding-top: 0;
+    overflow: hidden;
+
+    .wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        height: 100%;
+        padding-top: 10vh;
+        width: 100%;
+    }
+
+    .app_list {
+        display: grid;
+        row-gap: 25px;
+        column-gap: 15px;
+        grid-template-columns: repeat(5, 1fr);
+        width: 65%;
+        max-width: 900px;
+    }
+
+    .app_list .app_wrapp {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        text-decoration: none;
+
+        .app {
+            // The launcher artwork is light in both themes, so the tile is
+            // pinned to a plain white surface rather than a navy fill.
+            background: #FFFFFF;
+            border-radius: 16px;
+            height: 80px;
+            width: 80px;
+            box-shadow: 0px 8px 20px rgba(11, 70, 80, 0.10);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+
+            i {
+                font-size: 30px;
+                color: #0b4650 !important;
+                transition: transform 0.3s ease;
+            }
+
+            img.app-icon {
+                width: 70px !important;
+                height: 70px !important;
+                border-radius: 12px !important;
+                margin: 5px;
+            }
+
+            &:hover {
+                transform: translateY(-6px);
+                box-shadow: 0px 15px 35px rgba(11, 70, 80, 0.25);
+                border-color: #2a7f86;
+
+                i {
+                    transform: scale(1.15);
+                    color: #2a7f86 !important;
+                }
+            }
+        }
+
+        span {
+            padding-top: 8px;
+            // The launcher artwork is light in both themes, so the label is
+            // pinned to ink rather than following the theme token.
+            color: #13292d !important;
+            font-size: 16px;
+            font-weight: 400;
+            text-align: center;
+            opacity: 1 !important;
+            max-width: none !important;
+            display: block !important;
+        }
+    }
+}
+
+// ==========================================
+// X2MANY ROW ACTION BUTTONS
+// Keep inline row buttons (e.g. BMR step "Op. Signature" / "Hold") on a single
+// line so they don't wrap and overlay the row's delete (trash) control.
+// ==========================================
+.o_field_x2many {
+    .o_list_table td.o_list_button {
+        white-space: nowrap;
+        text-align: right;
+
+        .btn {
+            margin-left: 4px;
+            vertical-align: middle;
+        }
+    }
+
+    // give the delete control breathing room after the buttons
+    .o_list_table td.o_list_record_remove {
+        padding-left: 8px;
+    }
+}
+
+// ==========================================
+// BUTTONS
+// ==========================================
+.btn-primary {
+    // Solid petrol button (#0b4650) → Petrol 900 (#072b33) on hover.
+    background: var(--pharma-primary-fill) !important;
+    border-color: var(--pharma-primary-fill) !important;
+    color: var(--pharma-on-primary) !important;
+    font-weight: 600;
+    border-radius: 8px;
+
+    .fa,
+    .oi {
+        color: var(--pharma-on-primary) !important;
+    }
+
+    &:hover,
+    &:focus,
+    &:active,
+    &.active {
+        background: var(--pharma-primary-fill-2) !important;
+        border-color: var(--pharma-primary-fill-2) !important;
+        color: var(--pharma-on-primary) !important;
+
+        .fa,
+        .oi {
+            color: var(--pharma-on-primary) !important;
+        }
+    }
+}
+
+[data-bs-theme="dark"] .btn-primary {
+    color: var(--pharma-on-primary) !important;
+
+    .fa,
+    .oi {
+        color: var(--pharma-on-primary) !important;
+    }
+
+    &:hover,
+    &:focus,
+    &:active,
+    &.active {
+        background: var(--pharma-primary-600) !important;
+        border-color: var(--pharma-primary-600) !important;
+        color: var(--pharma-on-primary) !important;
+
+        .fa,
+        .oi {
+            color: var(--pharma-on-primary) !important;
+        }
+    }
+}
+
+.btn-outline-primary {
+    color: var(--pharma-primary) !important;
+    border-color: var(--pharma-primary) !important;
+    background-color: transparent !important;
+    font-weight: 600;
+
+    .fa,
+    .oi {
+        color: var(--pharma-primary) !important;
+    }
+
+    &:hover,
+    &:focus,
+    &:active,
+    &.active {
+        color: var(--pharma-on-primary) !important;
+        background-color: var(--pharma-primary-fill) !important;
+        border-color: var(--pharma-primary-fill) !important;
+
+        .fa,
+        .oi {
+            color: var(--pharma-on-primary) !important;
+        }
+    }
+}
+
+.btn-outline-secondary {
+    color: var(--pharma-text-color) !important;
+    border: 1px solid var(--pharma-grey) !important;
+    background-color: transparent !important;
+
+    .fa,
+    .oi {
+        color: var(--pharma-text-color) !important;
+    }
+
+    &:hover,
+    &:focus,
+    &:active,
+    &.active {
+        color: var(--pharma-on-primary) !important;
+        background-color: var(--pharma-primary-fill) !important;
+        border-color: var(--pharma-primary-fill) !important;
+
+        .fa,
+        .oi {
+            color: var(--pharma-on-primary) !important;
+        }
+    }
+}
+
+.btn.active {
+    background-color: var(--pharma-primary-fill) !important;
+    color: var(--pharma-on-primary) !important;
+
+    .fa,
+    .oi {
+        color: var(--pharma-on-primary) !important;
+    }
+}
+
+// ==========================================
+// SEARCH & SEARCH FACETS STYLING
+// ==========================================
+.o_searchview {
+    border-color: transparent;
+}
+
+.o_cp_searchview {
+    border-color: transparent;
+    box-shadow: 0 2px 8px rgba(7, 43, 51, 0.08);
+}
+
+.o_searchview_facet {
+    border-radius: 6px !important;
+    overflow: hidden;
+    margin: 2px 4px 2px 0;
+    align-items: center;
+
+    .o_searchview_facet_label {
+        background-color: #0b4650 !important;   // petrol
+        color: #ffffff !important;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+
+        // No opacity override here: the label holds Odoo's hover overlay
+        // (pencil / sort span, opacity-0 until hover). Forcing opacity 1
+        // kept it permanently over the facet title.
+        .fa, .oi, i, svg, span, small {
+            color: #ffffff !important;
+            fill: #ffffff !important;
+        }
+
+        &.text-bg-action, &.bg-action {
+            background-color: #072b33 !important;   // petrol 900
+            color: #ffffff !important;
+
+            .fa, .oi, i, svg, span, small {
+                color: #ffffff !important;
+                fill: #ffffff !important;
+            }
+        }
+
+        &.btn-primary {
+            background-color: #0b4650 !important;
+            border-color: #0b4650 !important;
+            color: #ffffff !important;
+
+            .fa, .oi, i, svg, span, small {
+                color: #ffffff !important;
+                fill: #ffffff !important;
+            }
+        }
+
+        &.btn-favourite {
+            background-color: #e6a23c !important;   // gold
+            color: #072b33 !important;
+
+            .fa, .oi, i, svg, span, small {
+                color: #072b33 !important;
+                fill: #072b33 !important;
+            }
+        }
+    }
+
+    .o_facet_values {
+        background-color: #ddefec !important;   // teal tint
+        color: #0b4650 !important;
+        font-weight: 600;
+
+        .o_facet_value {
+            color: #0b4650 !important;
+            font-weight: 600;
+        }
+
+        .o_facet_values_sep {
+            color: #56696c !important;
+        }
+    }
+
+    .o_facet_remove {
+        color: #b42318 !important;
+        opacity: 0.9;
+        font-size: 13px;
+        padding: 0 4px !important;
+        margin-left: 2px;
+        transition: all 0.15s ease;
+
+        &:hover {
+            color: #8f1c13 !important;
+            opacity: 1;
+            transform: scale(1.15);
+        }
+    }
+}
+
+.o_search_options {
+    .dropdown-item.selected, .dropdown-item:active, .o_menu_item.selected {
+        color: var(--pharma-primary) !important;
+        font-weight: 700 !important;
+
+        .fa, .oi, i {
+            color: var(--pharma-primary) !important;
+        }
+    }
+}
+
+// ==========================================
+// BADGES
+// ==========================================
+.o_form_sheet .badge,
+.o_action_manager .badge {
+    padding: 5px 8px !important;
+}
+
+// Soft chip pattern: teal tint with petrol text
+.text-bg-primary,
+.bg-primary {
+    background-color: var(--pharma-teal-tint) !important;
+    color: var(--pharma-primary) !important;
+}
+
+.o_action_manager .badge.text-bg-warning,
+.o_action_manager .badge.bg-warning {
+    background-color: var(--pharma-gold-tint) !important;
+    color: var(--pharma-gold-text) !important;
+}
+
+// Pass / fail (success / danger) badges are solid so the verdict reads at
+// a glance: natural green or red background with white text, same in both
+// light and dark mode.
+.o_action_manager .badge.text-bg-danger,
+.o_action_manager .badge.bg-danger {
+    background-color: var(--pharma-fail-solid) !important;
+    color: #ffffff !important;
+}
+
+.o_action_manager .badge.text-bg-success,
+.o_action_manager .badge.bg-success {
+    background-color: var(--pharma-pass-solid) !important;
+    color: #ffffff !important;
+}
+
+.o_action_manager .badge.text-bg-info,
+.o_action_manager .badge.bg-info {
+    background-color: var(--pharma-teal-tint) !important;
+    color: var(--pharma-primary) !important;
+}
+
+.bg-action,
+.text-bg-action {
+    background-color: var(--pharma-navy) !important;
+}
+
+// ==========================================
+// FORM VIEW - Header & Statusbar
+// ==========================================
+.o_form_view {
+    .o_form_statusbar {
+        position: relative;
+        z-index: 1;
+        flex-wrap: wrap;
+        gap: 4px;
+
+        .o_statusbar_buttons {
+            flex-wrap: wrap;
+            gap: 4px;
+
+            >.btn {
+                white-space: nowrap;
+            }
+        }
+
+        .o_statusbar_status {
+            flex-wrap: wrap;
+        }
+    }
+}
+
+// ==========================================
+// FORM ELEMENTS
+// ==========================================
+// Smart Buttons Styling (transparent background, dynamic text/value/icon colors)
+.o-form-buttonbox .oe_stat_button {
+    background-color: transparent !important;
+    border: 1px solid var(--pharma-grey) !important;
+    border-radius: 5px !important;
+    margin: 2px !important;
+    transition: all 0.2s ease-in-out;
+
+    .o_stat_info, .o_stat_text, span {
+        color: var(--pharma-text-color) !important;
+    }
+
+    .o_stat_value {
+        color: var(--pharma-ink) !important;   // darker shade (theme-aware)
+        font-weight: 700 !important;
+    }
+
+    .o_button_icon {
+        color: var(--pharma-ink) !important;   // darker shade (theme-aware)
+    }
+
+    &:hover {
+        background-color: var(--pharma-bg) !important;
+        border-color: var(--pharma-ink) !important;
+    }
+}
+
+.form-check-input:checked {
+    background-color: var(--pharma-primary);
+    border-color: var(--pharma-primary);
+}
+
+.o_data_row td {
+    vertical-align: middle;
+}
+
+// ==========================================
+// LIST VIEW — uppercase gray column headers, roomy rows, subtle hover.
+// Typography applies to BOTH the main list and embedded x2many lines;
+// the "card" chrome (border/radius/shadow) is added to the main list only.
+// NOTE: an x2many field root carries BOTH `.o_list_view` and
+// `.o_field_x2many` (getViewClass("list") === "o_list_view"), so the card
+// chrome must be excluded with :not(.o_field_x2many) to avoid the stray
+// rounded corners seen inside form notebooks.
+// ==========================================
+.o_list_view {
+    table.o_list_table {
+        > thead > tr > th {
+            background: var(--pharma-bg);
+            border-bottom: 1px solid var(--pharma-grey) !important;
+            color: var(--pharma-text-color) !important;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding-top: 12px;
+            padding-bottom: 12px;
+
+            &.o_column_sortable:hover {
+                color: var(--pharma-heading) !important;
+            }
+        }
+
+        > tbody > tr.o_data_row {
+            border-top: 1px solid var(--pharma-gridline);
+
+            > td {
+                color: var(--pharma-heading);
+                font-size: 13.5px;
+                padding-top: 10px;
+                padding-bottom: 10px;
+            }
+
+            // muted secondary text
+            .text-muted,
+            td.o_field_cell.text-muted {
+                color: var(--pharma-text-color) !important;
+            }
+
+            &:hover {
+                background-color: #f7fafa;
+            }
+        }
+
+        // monospace for reference / numeric columns
+        .o_list_number,
+        td.o_list_number {
+            font-family: var(--pharma-font-mono);
+        }
+    }
+}
+
+// Card chrome — standalone list view only (never embedded x2many lines)
+.o_list_view:not(.o_field_x2many) {
+    .o_list_renderer {
+        background: var(--pharma-white);
+        border: 1px solid var(--pharma-grey);
+        // Flat top (rounded bottom only) — no top corner radius.
+        border-radius: 0 0 14px 14px;
+        box-shadow: 0 2px 6px rgba(7, 43, 51, 0.04);
+    }
+}
+
+[data-bs-theme="dark"] .o_list_view table.o_list_table > tbody > tr.o_data_row {
+    border-top-color: var(--pharma-navy-lighter);
+
+    &:hover {
+        background-color: var(--pharma-navy-light);
+    }
+}
+
+// ==========================================
+// FORM VIEW — sheet as a rounded card + section headers
+// ==========================================
+.o_form_view {
+    .o_form_sheet {
+        border: 1px solid var(--pharma-grey);
+        border-radius: 14px;
+        box-shadow: 0 2px 6px rgba(7, 43, 51, 0.04);
+    }
+
+    // Group / section titles → uppercase eyebrow with hairline underline
+    .o_horizontal_separator,
+    .o_group .o_horizontal_separator {
+        font-family: var(--pharma-font-heading);
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: #13292d !important;
+        padding-bottom: 10px;
+        margin-bottom: 12px;
+        border-bottom: 1px solid var(--pharma-gridline);
+    }
+
+    // Field labels — ink
+    .o_form_label,
+    label.o_form_label {
+        color: #13292d !important;
+        font-weight: 600;
+    }
+
+    // Field VALUES — keep filled values strongly dark so they read clearly.
+    // Odoo's default/readonly value text washes out on the light pharma canvas;
+    // the design uses ink (#13292d) for values. Links & badges keep their
+    // own colours via the more-specific rules below.
+    .o_field_widget,
+    .o_field_widget input:not([type="checkbox"]):not([type="radio"]),
+    .o_field_widget textarea,
+    .o_field_widget .o_input {
+        color: #13292d;
+    }
+
+    // Placeholders stay muted (don't inherit the dark value colour)
+    .o_field_widget input::placeholder,
+    .o_field_widget textarea::placeholder,
+    .o_field_widget .o_input::placeholder {
+        color: #56696c;
+        opacity: 1;
+    }
+
+    // Internal reference-style links / many2one open links → ink
+    .o_field_widget .o_form_uri > a,
+    .o_field_many2one_selection a,
+    .o_field_widget a,
+    .o_field_widget button.btn-link {
+        color: #13292d !important;
+        font-weight: 600;
+    }
+}
+
+// Inside dialogs the sheet fills the modal body, and Odoo's native sheet uses
+// top/bottom hairlines only (no side borders) so content sits flush against the
+// modal padding. Our full card border/radius adds left+right borders that hug
+// the text — revert to the native look here.
+.modal .o_form_view .o_form_sheet,
+.o_dialog .o_form_view .o_form_sheet {
+    border-width: 1px 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+
+[data-bs-theme="dark"] .o_form_view {
+    .o_horizontal_separator,
+    .o_group .o_horizontal_separator {
+        border-bottom-color: var(--pharma-navy-lighter);
+    }
+}
+
+// ==========================================
+// STATUS BAR — connected pill stages
+// ==========================================
+.o_form_view .o_form_statusbar .o_statusbar_status {
+    .o_arrow_button {
+        &.btn-primary,
+        &.o_arrow_button_current {
+            background-color: var(--pharma-teal-tint) !important;
+            color: var(--pharma-ink) !important;
+            font-weight: 600;
+
+            &::before,
+            &::after {
+                border-left-color: var(--pharma-teal-tint) !important;
+            }
+        }
+    }
+}
+
+// ==========================================
+// MODAL
+// ==========================================
+.modal-header {
+    border-bottom: 2px solid var(--pharma-primary);
+}
+
+// ==========================================
+// DISCUSS
+// ==========================================
+.o-mail-Discuss {
+    margin-top: 0px !important;
+}
+
+// Chatter Font Fixes
+.o-mail-Chatter {
+    .o-mail-Chatter-header {
+        button {
+            font-size: 14px !important;
+            font-weight: 500 !important;
+        }
+    }
+}
+
+// Message bubbles — recolor self-authored messages from Odoo's default green
+// ($success) to the petrol palette. Bubble fill is a faint teal tint; border is
+// a light teal hairline; accent is petrol. Body text stays ink.
+.o-mail-Message-bubble.o-green,
+.o-mail-Message-bubbleTail.o-green {
+    --o-message-bubble-bg: #eef6f5 !important;            // faint teal tint
+    --o-message-bubble-border-color: #c4dedb !important;  // light teal hairline
+    --o-message-bubble-color-base: var(--pharma-primary) !important;
+}
+
+// ==========================================
+// RESPONSIVE
+// ==========================================
+@media (max-width: 1200px) {
+    .app_container .app_list {
+        grid-template-columns: repeat(4, 1fr);
+        width: 80%;
+    }
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        display: none !important;
+    }
+
+    html .o_web_client>.o_action_manager {
+        margin-left: 0 !important;
+    }
+
+    .o_main_navbar {
+        flex-wrap: nowrap;
+        padding-right: 15px !important;
+        /* Add space at the end */
+    }
+
+    .o_main_navbar .navbar-brand {
+        margin-right: 0px;
+        padding-left: 0px;
+    }
+
+    .o_main_navbar .o_menu_brand,
+    .o_main_navbar .o_nav_entry,
+    .o_main_navbar .dropdown-toggle:not(.o-dropdown-toggle-custo),
+    .o_main_navbar .o_menu_toggle {
+        padding-left: 0px;
+    }
+
+    .app_container .app_list {
+        grid-template-columns: repeat(3, 1fr);
+        width: 90%;
+        gap: 15px;
+    }
+
+    .app_container .wrapper {
+        overflow-y: auto;
+        align-items: flex-start;
+        height: 100%;
+        padding-top: 40px;
+    }
+
+    /* Force hamburger menu to the right end and align */
+    .o_main_navbar .o_mobile_menu_toggle,
+    .o_main_navbar .o_menu_toggle {
+        order: -1 !important;
+        margin-left: 10px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        height: 100% !important;
+        color: var(--pharma-white) !important;
+    }
+
+    /* Align breadcrumbs and ensure they take available space */
+    .o_main_navbar .o_menu_brand,
+    .o_main_navbar .breadcrumb,
+    .o_main_navbar .o_control_panel_breadcrumbs {
+        flex-grow: 1 !important;
+        display: flex !important;
+        align-items: center !important;
+        margin-bottom: 0 !important;
+        height: 100% !important;
+    }
+
+    /* Make breadcrumbs white and bold on mobile */
+    .o_main_navbar .o_menu_brand,
+    .o_main_navbar .o_menu_brand *,
+    .o_main_navbar .breadcrumb,
+    .o_main_navbar .breadcrumb *,
+    .o_main_navbar .o_control_panel_breadcrumbs,
+    .o_main_navbar .o_control_panel_breadcrumbs *,
+    .o_main_navbar .o_back_button,
+    .o_main_navbar .o_back_button * {
+        color: var(--pharma-white) !important;
+        font-weight: 700 !important;
+        text-decoration: none !important;
+    }
+
+    /* Fix unreadable light text colors in mobile form views */
+    .o_form_view .o_form_label,
+    .o_form_view label.o_form_label,
+    .o_form_view .o_cell label,
+    .o_form_view .o_wrap_label label,
+    .o_form_view label,
+    .o_form_view .text-secondary,
+    .o_form_view .text-muted,
+    .o_form_view span.text-muted {
+        color: var(--pharma-text-color) !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .app_container .app_list {
+        grid-template-columns: repeat(2, 1fr);
+        width: 95%;
+    }
+
+    .app_container .app_list .app_wrapp .app {
+        height: 65px;
+        width: 65px;
+
+        i {
+            font-size: 26px;
+        }
+    }
+}
+
+// ==========================================
+// HOME MENU BACKGROUND — enterprise app launcher
+// ==========================================
+// Enterprise renders the app tray through `web_enterprise`'s home menu, not
+// through our `.app_container` client action, so the artwork has to be applied
+// there too. `web_enterprise` drives it entirely off two custom properties
+// (see web_enterprise/.../home_menu_background.scss), so no CSS hacks are
+// needed — just override the variables.
+//
+// The class goes on `<body>`, not on `.o_web_client`: home_menu_service.js
+// runs `document.body.classList.toggle("o_home_menu_background", ...)`. The
+// `.o_web_client.o_home_menu_background` half of web_enterprise's own selector
+// is legacy and never matches in 19.0 — don't copy it.
+//
+// Matching as `body.o_home_menu_background` (0,1,1) also settles specificity:
+// web_enterprise sets the same variables on a bare `.o_home_menu_background`
+// (0,1,0) in the light bundle and again in `web.assets_web_dark`. We don't
+// depend on `web_enterprise`, so bundle order isn't guaranteed — the element
+// prefix makes the override win either way, in light and dark mode.
+body.o_home_menu_background {
+    --homeMenu-bg-color: var(--pharma-launcher-bg-color);
+    --homeMenu-bg-image: var(--pharma-launcher-bg-image);
+
+    // The artwork's skyline sits along the bottom edge; keep it anchored there
+    // instead of centre-cropped (enterprise defaults to `attachment: fixed`).
+    background-position: center bottom;
+}
+
+// App-tray labels sit on the dark petrol launcher artwork, so they are white.
+// This rule ships inside the module's asset bundle: it applies while the pharma
+// suite is installed and disappears with it, restoring Odoo's default colour.
+body.o_home_menu_background .o_app .o_caption,
+body.o_home_menu_background .o_app .o_app_name,
+.app_container .app_list .app .app_name {
+    color: #FFFFFF !important;
+    text-shadow: 0 1px 2px rgba(7, 43, 51, 0.45);
+}
+
+// ==========================================
+// PREMIUM FEATURES (locked-feature banner on forms, cards in Settings)
+// ==========================================
+.o_pharma_premium_notice,
+.o_pharma_premium_setting,
+.o_pharma_premium_dialog {
+    --premium-bg: #fbf0dc;          // gold tint
+    --premium-card-bg: #FFFFFF;
+    --premium-border: #f0d39b;
+    --premium-accent: #8a5a0b;      // dark gold text
+    --premium-accent-bg: #f8e3b8;
+    --premium-title: #13292d;
+    --premium-text: #56696c;
+
+    .o_pharma_premium_tag {
+        display: inline-flex;
+        align-items: center;
+        padding: 2px 9px;
+        border-radius: 999px;
+        background: var(--premium-accent-bg);
+        color: var(--premium-accent);
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        white-space: nowrap;
+
+        .fa {
+            color: var(--premium-accent) !important;
+            font-size: 10px;
+        }
+    }
+
+    .btn.o_pharma_premium_notice_btn {
+        flex-shrink: 0;
+        white-space: nowrap;
+        padding: 5px 14px;
+        border: 1px solid var(--premium-accent);
+        border-radius: 6px;
+        background: transparent;
+        color: var(--premium-accent);
+        font-weight: 600;
+
+        &:hover,
+        &:focus {
+            background: var(--premium-accent);
+            color: #FFFFFF;
+        }
+    }
+}
+
+@mixin o-pharma-premium-crown {
+    content: "";
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    margin-left: 5px;
+    vertical-align: -2px;
+    background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='%23e6a23c' d='M3 7l4.5 4L12 4l4.5 7L21 7l-2 11H5L3 7zm2 13h14v2H5v-2z'/></svg>") center / contain no-repeat;
+}
+
+// Crown on the label of each sample field of a premium feature that is not installed.
+.o_pharma_premium_notice ~ .o_pharma_premium_sample,
+.o_form_view:has(.o_pharma_premium_notice) .o_pharma_premium_sample {
+    .o_form_label::after {
+        @include o-pharma-premium-crown;
+    }
+}
+
+// Crown on the Measurement Sources menu and fields (Device Capture add-on).
+// pharma_device_capture removes it once installed.
+[data-menu-xmlid="pharmaceutical_base.menu_pharma_value_source"]::after,
+.o_form_label[for^="value_source_id"]::after,
+th[data-name="value_source_id"] .d-flex > span:first-child::after,
+th[data-name="value_source_ids"] .d-flex > span:first-child::after,
+.o_pharma_device_premium::after {
+    @include o-pharma-premium-crown;
+}
+
+// Banner on a form whose premium feature is not enabled.
+.o_pharma_premium_notice {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 16px;
+    padding: 12px 16px;
+    background: var(--premium-bg);
+    border: 1px solid var(--premium-border);
+    border-left: 4px solid var(--premium-accent);
+    border-radius: 8px;
+
+    .o_pharma_premium_notice_icon {
+        flex-shrink: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: var(--premium-accent-bg);
+
+        .fa {
+            color: var(--premium-accent) !important;
+            font-size: 16px;
+        }
+    }
+
+    .o_pharma_premium_notice_body {
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+
+    .o_pharma_premium_notice_title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 600;
+        color: var(--premium-title);
+        line-height: 1.4;
+    }
+
+    .o_pharma_premium_notice_text {
+        margin-top: 2px;
+        color: var(--premium-text);
+        font-size: 13px;
+        line-height: 1.45;
+    }
+
+    @media (max-width: 767.98px) {
+        flex-wrap: wrap;
+
+        .btn.o_pharma_premium_notice_btn {
+            margin-left: 50px;
+        }
+    }
+}
+
+// A premium feature listed in Settings, drawn as a card.
+.o_setting_box.o_pharma_premium_setting {
+    display: flex;
+    padding-top: 8px;
+    padding-bottom: 8px;
+
+    .o_setting_right_pane {
+        flex: 1 1 auto;
+        display: flex;
+        flex-direction: column;
+        margin-left: 0;
+        padding: 16px 18px;
+        background: var(--premium-card-bg);
+        border: 1px solid var(--premium-border) !important;
+        border-radius: 10px;
+        box-shadow: none !important;
+
+        > .o_form_label {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--premium-title);
+        }
+
+        > .text-muted {
+            margin-top: 4px;
+            color: var(--premium-text) !important;
+            line-height: 1.45;
+        }
+
+        > .mt16 {
+            margin-top: auto !important;
+            padding-top: 14px;
+        }
+    }
+
+    .o_pharma_premium_setting_footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+    }
+}
+
+// ==========================================
+// RIBBONS — natural green for success ribbons (e.g. "Ready for QA Release")
+// ==========================================
+.ribbon .text-bg-success,
+.ribbon .bg-success {
+    background-color: var(--pharma-pass-solid) !important;
+    color: #ffffff !important;
+}
+
+// ==========================================
+// BREADCRUMBS — aqua teal links in the control panel
+// (the mobile navbar breadcrumbs stay white on petrol; see above)
+// ==========================================
+.o_control_panel .breadcrumb-item a,
+.o_control_panel .breadcrumb-item a:not(.btn),
+.o_control_panel .o_breadcrumb .breadcrumb-item::before {
+    color: var(--pharma-aqua) !important;
+}
+
+.o_control_panel .breadcrumb-item a:hover {
+    color: var(--pharma-primary) !important;
+    text-decoration: underline;
+}

@@ -1,0 +1,246 @@
+#sidebar_panel {
+    height: calc(100% - 0%);
+    position: fixed;
+    overflow-y: scroll;
+    -ms-overflow-style: none;
+    /* Hide scrollbar for IE and Edge */
+    scrollbar-width: none;
+    /* Hide scrollbar for Firefox */
+    z-index: 3;
+    top: 0;
+    margin-top: 25px;
+}
+
+.sidebar_img {
+    width: 22px;
+    height: 22px;
+    border-radius: 0px;
+}
+
+html .o_web_client>.o_action_manager {
+    margin-left: 75px;
+    padding-top: 0px !important;
+    transition: margin-left 0.4s ease-in-out;
+
+    @media (max-width: 768px) {
+        margin-left: 0px !important;
+    }
+}
+
+.sidebar {
+    height: calc(100vh - 56px);
+    top: 56px;
+    width: 75px;
+    max-width: 75px;
+    position: fixed;
+    // Rail surface: WHITE in light theme, petrol navbar colour in dark theme
+    // (overridden below). Opaque so content sliding underneath during the
+    // margin-left animation never shows through. All rail colours are scoped
+    // here so the generic var names do not leak to the rest of the backend.
+    background-color: var(--pd-rail, #FFFFFF);   // white rail in light mode
+    border-right: 1px solid var(--pharma-grey);   // #dce7e6 hairline
+    box-shadow: none;
+    --white-color: #FFFFFF;      // icon on the petrol active tile
+    --primary-color: #0b4650;    // Petrol — active tile / hover icon
+    --secondary-color: #56696c;  // muted — resting icon / label
+    padding: 24px 0 20px 0;
+    overflow: auto;
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+    transition: none;
+    z-index: 100;
+
+    @media (max-width: 768px) {
+        display: none !important;
+    }
+
+    ::-webkit-scrollbar {
+        display: none;
+    }
+
+    &:hover::-webkit-scrollbar {
+        display: block;
+    }
+
+    span {
+        display: none !important;
+    }
+
+    &:hover {
+        scrollbar-color: rgb(219, 219, 219) rgb(218, 218, 218);
+
+        span {
+            display: none !important;
+        }
+    }
+
+    .sidebar_links {
+        padding-left: 0;
+    }
+
+    #dropdown-toggle {
+        position: relative;
+        color: white !important;
+        margin-bottom: 10px;
+        margin-left: 25px;
+
+        a {
+            width: 100%;
+            display: flex;
+            justify-content: start;
+            column-gap: 15px;
+            align-items: center;
+
+            svg {
+                margin-top: -2px;
+            }
+        }
+    }
+
+    #dropdown-toggle.active {
+        color: var(--sb-icon-on-active, #0b4650) !important;
+        background-color: var(--sb-active-bg, #c9e4e0);
+        border-radius: 12px;
+        padding: 15px 15px;
+        box-shadow: 0px 6px 14px 0px rgba(11, 70, 80, 0.18);
+        position: relative;
+
+        a {
+            width: 100%;
+            display: flex;
+            justify-content: start;
+            column-gap: 15px;
+            align-items: center;
+            color: var(--sb-icon-on-active, #0b4650) !important;
+        }
+
+        svg path {
+            stroke: var(--sb-icon-on-active, #0b4650);
+            transition: stroke 0.3s ease;
+        }
+
+        &:before {
+            position: absolute;
+            content: "";
+            height: 100%;
+            width: 8px;
+            background-color: var(--primary-color);
+            left: -28px;
+            top: 0;
+            border-radius: 10px;
+        }
+    }
+
+    .dropdown-content {
+        position: relative;
+        display: none;
+
+        li {
+            padding: 15px 15px;
+        }
+    }
+
+    // 48px rounded-square tiles centred in the 75px rail
+    .sidbar-item {
+        position: relative;
+        width: 48px;
+        height: 48px;
+        margin: 0 auto 10px auto;
+        padding: 0;
+        border-radius: 12px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        transition: background-color 0.3s ease;
+
+        a {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            column-gap: 0px;
+            align-items: center;
+            height: 100%;
+            padding: 0;
+            color: var(--secondary-color) !important;
+            transition: color 0.3s ease, background-color 0.3s ease;
+
+            svg {
+                path {
+                    transition: stroke 0.3s ease;
+                }
+            }
+        }
+
+        &:hover {
+            a {
+                color: var(--primary-color) !important;
+            }
+
+            svg path {
+                stroke: var(--primary-color);
+            }
+        }
+    }
+}
+
+
+.sidebar .sidbar-item.active {
+    color: var(--sb-icon-on-active, #0b4650) !important;
+    background-color: var(--sb-active-bg, #c9e4e0);
+    border-radius: 12px;
+    padding: 0;
+    box-shadow: 0px 4px 10px 0px rgba(11, 70, 80, 0.12);
+    position: relative;
+
+    a,
+    a .bi {
+        color: var(--sb-icon-on-active, #0b4650) !important;
+    }
+
+    svg path {
+        stroke: var(--sb-icon-on-active, #0b4650);
+    }
+}
+
+
+/* Reset layout and hide the sidebar on the app dashboard / home menu.
+   Covers both the custom home menu (.pharma_app_container) and Odoo's
+   standard home menu (.o_home_menu) so the rail never shows on the
+   "odoo icon" dashboard, while staying visible inside every app. */
+.o_web_client:has(.pharma_app_container),
+.o_web_client:has(.o_home_menu) {
+    .sidebar {
+        display: none !important;
+    }
+    .o_action_manager {
+        margin-left: 0px !important;
+    }
+    .o_navbar {
+        margin-left: 0px !important;
+    }
+}
+
+/* Reset navbar margin when sidebar is hidden, and give the content back the
+   75px the rail was holding — otherwise a blank gutter is left behind. */
+.o_web_client:has(.sidebar.o_hidden) .o_navbar,
+.o_web_client:has(.sidebar.o_hidden) .o_action_manager {
+    margin-left: 0px !important;
+}
+
+/* Same when the rail is not in the DOM at all: never leave the content
+   indented for a rail that is not there. */
+.o_web_client:not(:has(.sidebar)) .o_action_manager {
+    margin-left: 0px !important;
+}
+
+/* Dark theme: use the navbar colour for the rail, and flip the icon/label
+   colours to light tones so they stay readable on the dark surface. */
+[data-bs-theme="dark"] .sidebar,
+.o_web_client.o_dark_mode .sidebar,
+.o_dark_mode .sidebar {
+    --pd-rail: var(--pharma-navy);   // same as navbar (petrol 900 #072b33)
+    --white-color: #FFFFFF;      // icon on the active tile
+    --primary-color: #3fa3a9;    // aqua — hover accent on the petrol rail
+    --secondary-color: #9db8b6;  // resting (fallback) icon — muted pale teal    border-right-color: #10303a;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.30);
+}
