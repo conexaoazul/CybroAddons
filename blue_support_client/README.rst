@@ -66,13 +66,13 @@ Configuration is intentionally opt-in for automated ticket submission:
 
 Do not configure an endpoint or token before the Conexão Azul backend is
 validated and the security/QA gate is approved. A pre-existing
-``cybrosys_support_client.endpoint_url`` is ignored for privacy.
+``blue_support_client.endpoint_url`` is ignored for privacy.
 
 If the parameter is missing or blank, the module falls back to the default
 above.
 
 License
-=======
+=========
 GNU LESSER GENERAL PUBLIC LICENSE v3.0 (LGPL v3)
 (https://www.gnu.org/licenses/lgpl-3.0-standalone.html)
 

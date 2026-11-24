@@ -2,7 +2,7 @@
 # Original module: Cybrosys Techno Solutions (LGPL-3).
 msgid ""
 msgstr ""
-"Project-Id-Version: cybrosys_support_client 19.0.1.1.2\n"
+"Project-Id-Version: blue_support_client 19.0.1.1.2\n"
 "POT-Creation-Date: 2026-11-23 00:00+0000\n"
 "PO-Revision-Date: 2026-11-23 00:00+0000\n"
 "Language: pt_BR\n"
@@ -12,330 +12,329 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#. module: cybrosys_support_client
-#: model:ir.model,name:cybrosys_support_client.model_client_support
+#. module: blue_support_client
+#: model:ir.model,name:blue_support_client.model_client_support
 msgid "Client Support"
 msgstr "Atendimento ao cliente"
 
-#. module: cybrosys_support_client
-#: model:ir.module.module,shortdesc:cybrosys_support_client.module_cybrosys_support_client
+#. module: blue_support_client
+#: model:ir.module.module,shortdesc:blue_support_client.module_blue_support_client
 msgid "Conexão Azul Support Assistant"
 msgstr "Assistente de Suporte Conexão Azul"
 
-#. module: cybrosys_support_client
-#: model:ir.model.fields,field_description:cybrosys_support_client.field_client_support__name
+#. module: blue_support_client
+#: model:ir.model.fields,field_description:blue_support_client.field_client_support__name
 msgid "Customer Name"
 msgstr "Nome do cliente"
 
-#. module: cybrosys_support_client
-#: model:ir.model.fields,help:cybrosys_support_client.field_client_support__name
+#. module: blue_support_client
+#: model:ir.model.fields,help:blue_support_client.field_client_support__name
 msgid "Enter name"
 msgstr "Informe seu nome"
 
-#. module: cybrosys_support_client
-#: model:ir.model.fields,field_description:cybrosys_support_client.field_client_support__email
+#. module: blue_support_client
+#: model:ir.model.fields,field_description:blue_support_client.field_client_support__email
 msgid "Email"
 msgstr "E-mail"
 
-#. module: cybrosys_support_client
-#: model:ir.model.fields,help:cybrosys_support_client.field_client_support__email
+#. module: blue_support_client
+#: model:ir.model.fields,help:blue_support_client.field_client_support__email
 msgid "Enter your Email"
 msgstr "Informe seu e-mail"
 
-#. module: cybrosys_support_client
-#: model:ir.model.fields,field_description:cybrosys_support_client.field_client_support__phone
+#. module: blue_support_client
+#: model:ir.model.fields,field_description:blue_support_client.field_client_support__phone
 msgid "Phone"
 msgstr "Telefone"
 
-#. module: cybrosys_support_client
-#: model:ir.model.fields,help:cybrosys_support_client.field_client_support__phone
+#. module: blue_support_client
+#: model:ir.model.fields,help:blue_support_client.field_client_support__phone
 msgid "Contact number for follow-up (optional)."
 msgstr "Telefone para retorno (opcional)."
 
-#. module: cybrosys_support_client
-#: model:ir.model.fields,field_description:cybrosys_support_client.field_client_support__subject
+#. module: blue_support_client
+#: model:ir.model.fields,field_description:blue_support_client.field_client_support__subject
 msgid "Subject"
 msgstr "Assunto"
 
-#. module: cybrosys_support_client
-#: model:ir.model.fields,help:cybrosys_support_client.field_client_support__subject
+#. module: blue_support_client
+#: model:ir.model.fields,help:blue_support_client.field_client_support__subject
 msgid "Short summary of the issue."
 msgstr "Resuma o problema em poucas palavras."
 
-#. module: cybrosys_support_client
-#: model:ir.model.fields,field_description:cybrosys_support_client.field_client_support__description
+#. module: blue_support_client
+#: model:ir.model.fields,field_description:blue_support_client.field_client_support__description
 msgid "Description"
 msgstr "Descrição"
 
-#. module: cybrosys_support_client
-#: model:ir.model.fields,help:cybrosys_support_client.field_client_support__description
+#. module: blue_support_client
+#: model:ir.model.fields,help:blue_support_client.field_client_support__description
 msgid "Specify your problem in detail."
 msgstr "Descreva o problema com detalhes."
 
-#. module: cybrosys_support_client
-#: model:ir.model.fields,field_description:cybrosys_support_client.field_client_support__attachment_ids
+#. module: blue_support_client
+#: model:ir.model.fields,field_description:blue_support_client.field_client_support__attachment_ids
 msgid "Attachments"
 msgstr "Anexos"
 
-#. module: cybrosys_support_client
-#: model:ir.model.fields,help:cybrosys_support_client.field_client_support__attachment_ids
+#. module: blue_support_client
+#: model:ir.model.fields,help:blue_support_client.field_client_support__attachment_ids
 msgid "Images (PNG, JPG, GIF, WEBP, BMP), PDF or Word documents, up to 5 files of 3 MB each."
 msgstr "Imagens (PNG, JPG, GIF, WEBP, BMP), PDF ou Word; até 5 arquivos de 3 MB cada."
 
-#. module: cybrosys_support_client
-#: model:ir.model.fields,field_description:cybrosys_support_client.field_client_support__support_type
+#. module: blue_support_client
+#: model:ir.model.fields,field_description:blue_support_client.field_client_support__support_type
 msgid "Support Type"
 msgstr "Tipo de suporte"
 
-#. module: cybrosys_support_client
-#: model:ir.model.fields,help:cybrosys_support_client.field_client_support__support_type
+#. module: blue_support_client
+#: model:ir.model.fields,help:blue_support_client.field_client_support__support_type
 msgid "Select support type"
 msgstr "Selecione o tipo de suporte"
 
-#. module: cybrosys_support_client
-#: model:ir.model.fields,field_description:cybrosys_support_client.field_client_support__category
+#. module: blue_support_client
+#: model:ir.model.fields,field_description:blue_support_client.field_client_support__category
 msgid "Category"
 msgstr "Categoria"
 
-#. module: cybrosys_support_client
-#: model:ir.model.fields,help:cybrosys_support_client.field_client_support__category
+#. module: blue_support_client
+#: model:ir.model.fields,help:blue_support_client.field_client_support__category
 msgid "What kind of issue is this?"
 msgstr "Qual é o tipo de problema?"
 
-#. module: cybrosys_support_client
-#: model:ir.model.fields,field_description:cybrosys_support_client.field_client_support__priority
+#. module: blue_support_client
+#: model:ir.model.fields,field_description:blue_support_client.field_client_support__priority
 msgid "Priority"
 msgstr "Prioridade"
 
-#. module: cybrosys_support_client
-#: model:ir.model.fields,help:cybrosys_support_client.field_client_support__priority
+#. module: blue_support_client
+#: model:ir.model.fields,help:blue_support_client.field_client_support__priority
 msgid "How urgent is this issue?"
 msgstr "Qual é a urgência deste problema?"
 
-#. module: cybrosys_support_client
-#: model:ir.model.fields,field_description:cybrosys_support_client.field_client_support__show_payload
+#. module: blue_support_client
+#: model:ir.model.fields,field_description:blue_support_client.field_client_support__show_payload
 msgid "Show what will be sent"
 msgstr "Mostrar os dados que serão enviados"
 
-#. module: cybrosys_support_client
-#: model:ir.model.fields,help:cybrosys_support_client.field_client_support__show_payload
+#. module: blue_support_client
+#: model:ir.model.fields,help:blue_support_client.field_client_support__show_payload
 msgid "Preview the exact data sent to Conexão Azul before submitting."
 msgstr "Confira os dados enviados à Conexão Azul antes de confirmar."
 
-#. module: cybrosys_support_client
-#: model:ir.model.fields,field_description:cybrosys_support_client.field_client_support__payload_preview
+#. module: blue_support_client
+#: model:ir.model.fields,field_description:blue_support_client.field_client_support__payload_preview
 msgid "Payload preview"
 msgstr "Prévia dos dados"
 
-#. module: cybrosys_support_client
-#: model:ir.model.fields,help:cybrosys_support_client.field_client_support__payload_preview
+#. module: blue_support_client
+#: model:ir.model.fields,help:blue_support_client.field_client_support__payload_preview
 msgid "Read-only JSON of what will be sent on Submit. Attachment bytes are redacted to keep the preview readable."
 msgstr "Prévia JSON somente leitura. O conteúdo dos anexos é ocultado para facilitar a conferência."
 
-#. module: cybrosys_support_client
-#: model:ir.model.fields.selection,name:cybrosys_support_client.selection__client_support__support_type__functional
+#. module: blue_support_client
+#: model:ir.model.fields.selection,name:blue_support_client.selection__client_support__support_type__functional
 msgid "Functional Support"
 msgstr "Suporte funcional"
 
-#. module: cybrosys_support_client
-#: model:ir.model.fields.selection,name:cybrosys_support_client.selection__client_support__support_type__technical
+#. module: blue_support_client
+#: model:ir.model.fields.selection,name:blue_support_client.selection__client_support__support_type__technical
 msgid "Technical Support"
 msgstr "Suporte técnico"
 
-#. module: cybrosys_support_client
-#: model:ir.model.fields.selection,name:cybrosys_support_client.selection__client_support__category__installation
+#. module: blue_support_client
+#: model:ir.model.fields.selection,name:blue_support_client.selection__client_support__category__installation
 msgid "Installation"
 msgstr "Instalação"
 
-#. module: cybrosys_support_client
-#: model:ir.model.fields.selection,name:cybrosys_support_client.selection__client_support__category__configuration
+#. module: blue_support_client
+#: model:ir.model.fields.selection,name:blue_support_client.selection__client_support__category__configuration
 msgid "Configuration"
 msgstr "Configuração"
 
-#. module: cybrosys_support_client
-#: model:ir.model.fields.selection,name:cybrosys_support_client.selection__client_support__category__bug
+#. module: blue_support_client
+#: model:ir.model.fields.selection,name:blue_support_client.selection__client_support__category__bug
 msgid "Bug"
 msgstr "Erro"
 
-#. module: cybrosys_support_client
-#: model:ir.model.fields.selection,name:cybrosys_support_client.selection__client_support__category__feature_request
+#. module: blue_support_client
+#: model:ir.model.fields.selection,name:blue_support_client.selection__client_support__category__feature_request
 msgid "Feature Request"
 msgstr "Solicitação de melhoria"
 
-#. module: cybrosys_support_client
-#: model:ir.model.fields.selection,name:cybrosys_support_client.selection__client_support__category__performance
+#. module: blue_support_client
+#: model:ir.model.fields.selection,name:blue_support_client.selection__client_support__category__performance
 msgid "Performance"
 msgstr "Desempenho"
 
-#. module: cybrosys_support_client
-#: model:ir.model.fields.selection,name:cybrosys_support_client.selection__client_support__category__other
+#. module: blue_support_client
+#: model:ir.model.fields.selection,name:blue_support_client.selection__client_support__category__other
 msgid "Other"
 msgstr "Outro"
 
-#. module: cybrosys_support_client
-#: model:ir.model.fields.selection,name:cybrosys_support_client.selection__client_support__priority__0
+#. module: blue_support_client
+#: model:ir.model.fields.selection,name:blue_support_client.selection__client_support__priority__0
 msgid "Low"
 msgstr "Baixa"
 
-#. module: cybrosys_support_client
-#: model:ir.model.fields.selection,name:cybrosys_support_client.selection__client_support__priority__1
+#. module: blue_support_client
+#: model:ir.model.fields.selection,name:blue_support_client.selection__client_support__priority__1
 msgid "Normal"
 msgstr "Normal"
 
-#. module: cybrosys_support_client
-#: model:ir.model.fields.selection,name:cybrosys_support_client.selection__client_support__priority__2
+#. module: blue_support_client
+#: model:ir.model.fields.selection,name:blue_support_client.selection__client_support__priority__2
 msgid "High"
 msgstr "Alta"
 
-#. module: cybrosys_support_client
-#: model:ir.model.fields.selection,name:cybrosys_support_client.selection__client_support__priority__3
+#. module: blue_support_client
+#: model:ir.model.fields.selection,name:blue_support_client.selection__client_support__priority__3
 msgid "Blocker"
 msgstr "Crítica"
 
-#. module: cybrosys_support_client
-#: code:addons/cybrosys_support_client/wizard/client_support.py:0
+#. module: blue_support_client
+#: code:addons/blue_support_client/wizard/client_support.py:0
 #, python-format
 msgid "%d attachment"
 msgstr "%d anexo"
 
-#. module: cybrosys_support_client
-#: code:addons/cybrosys_support_client/wizard/client_support.py:0
+#. module: blue_support_client
+#: code:addons/blue_support_client/wizard/client_support.py:0
 #, python-format
 msgid "%d attachments"
 msgstr "%d anexos"
 
-#. module: cybrosys_support_client
-#: code:addons/cybrosys_support_client/wizard/client_support.py:0
+#. module: blue_support_client
+#: code:addons/blue_support_client/wizard/client_support.py:0
 msgid "Support ticket submission is not configured yet. Please use the WhatsApp button to contact Conexão Azul."
 msgstr "O envio de chamados ainda não está configurado. Use o botão WhatsApp para falar com a Conexão Azul."
 
-#. module: cybrosys_support_client
-#: code:addons/cybrosys_support_client/wizard/client_support.py:0
+#. module: blue_support_client
+#: code:addons/blue_support_client/wizard/client_support.py:0
 msgid "The support URL must use HTTPS and a Conexão Azul domain."
 msgstr "A URL de suporte deve usar HTTPS e um domínio da Conexão Azul."
 
-#. module: cybrosys_support_client
-#: code:addons/cybrosys_support_client/wizard/client_support.py:0
+#. module: blue_support_client
+#: code:addons/blue_support_client/wizard/client_support.py:0
 msgid "Support ticket authentication is not configured yet. Please use the WhatsApp button to contact Conexão Azul."
 msgstr "A autenticação dos chamados ainda não está configurada. Use o botão WhatsApp para falar com a Conexão Azul."
 
-#. module: cybrosys_support_client
-#: code:addons/cybrosys_support_client/wizard/client_support.py:0
+#. module: blue_support_client
+#: code:addons/blue_support_client/wizard/client_support.py:0
 #, python-format
 msgid "You can attach at most %s files."
 msgstr "Você pode anexar no máximo %s arquivos."
 
-#. module: cybrosys_support_client
-#: code:addons/cybrosys_support_client/wizard/client_support.py:0
+#. module: blue_support_client
+#: code:addons/blue_support_client/wizard/client_support.py:0
 #, python-format
 msgid "\"%s\" can't be sent: only images (PNG, JPG, GIF, WEBP, BMP), PDF and Word documents can be attached."
 msgstr "Não é possível enviar \"%s\": são aceitos apenas imagens (PNG, JPG, GIF, WEBP, BMP), PDF e documentos Word."
 
-#. module: cybrosys_support_client
-#: code:addons/cybrosys_support_client/wizard/client_support.py:0
+#. module: blue_support_client
+#: code:addons/blue_support_client/wizard/client_support.py:0
 #, python-format
 msgid "\"%s\" is larger than 3 MB. Please reduce its size."
 msgstr "\"%s\" ultrapassa 3 MB. Reduza o tamanho do arquivo."
 
-#. module: cybrosys_support_client
-#: code:addons/cybrosys_support_client/wizard/client_support.py:0
+#. module: blue_support_client
+#: code:addons/blue_support_client/wizard/client_support.py:0
 msgid "Your attachments are too large. Please reduce their size and try again."
 msgstr "Os anexos são muito grandes. Reduza o tamanho e tente novamente."
 
-#. module: cybrosys_support_client
-#: code:addons/cybrosys_support_client/wizard/client_support.py:0
+#. module: blue_support_client
+#: code:addons/blue_support_client/wizard/client_support.py:0
 msgid "The support service is having issues. Please try again in a few minutes."
 msgstr "O serviço de suporte está indisponível no momento. Tente novamente em alguns minutos."
 
-#. module: cybrosys_support_client
-#: code:addons/cybrosys_support_client/wizard/client_support.py:0
+#. module: blue_support_client
+#: code:addons/blue_support_client/wizard/client_support.py:0
 msgid "The ticket submission was rejected. Please check your inputs and try again."
 msgstr "O chamado foi recusado. Confira os dados e tente novamente."
 
-#. module: cybrosys_support_client
-#: code:addons/cybrosys_support_client/wizard/client_support.py:0
+#. module: blue_support_client
+#: code:addons/blue_support_client/wizard/client_support.py:0
 msgid "Could not reach the support service. Please check your network and try again."
 msgstr "Não foi possível acessar o suporte. Verifique sua conexão e tente novamente."
 
-#. module: cybrosys_support_client
-#: code:addons/cybrosys_support_client/wizard/client_support.py:0
+#. module: blue_support_client
+#: code:addons/blue_support_client/wizard/client_support.py:0
 msgid "The support service returned an unexpected response. Please try again later."
 msgstr "O suporte retornou uma resposta inesperada. Tente novamente mais tarde."
 
-#. module: cybrosys_support_client
-#: code:addons/cybrosys_support_client/wizard/client_support.py:0
+#. module: blue_support_client
+#: code:addons/blue_support_client/wizard/client_support.py:0
 msgid "Your Ticket Created Successfully"
 msgstr "Chamado criado com sucesso"
 
-#. module: cybrosys_support_client
-#: code:addons/cybrosys_support_client/wizard/client_support.py:0
+#. module: blue_support_client
+#: code:addons/blue_support_client/wizard/client_support.py:0
 #, python-format
 msgid "Ticket Reference : %s"
 msgstr "Número do chamado: %s"
 
-#. module: cybrosys_support_client
-#: code:addons/cybrosys_support_client/wizard/client_support.py:0
+#. module: blue_support_client
+#: code:addons/blue_support_client/wizard/client_support.py:0
 msgid "Save this reference to follow up with Conexão Azul."
 msgstr "Guarde este número para acompanhar seu atendimento com a Conexão Azul."
 
-#. module: cybrosys_support_client
-#: code:addons/cybrosys_support_client/wizard/client_support.py:0
+#. module: blue_support_client
+#: code:addons/blue_support_client/wizard/client_support.py:0
 #, python-format
 msgid "Track your ticket status here: %s"
 msgstr "Acompanhe o status do chamado aqui: %s"
 
-#. module: cybrosys_support_client
-#: code:addons/cybrosys_support_client/wizard/client_support.py:0
+#. module: blue_support_client
+#: code:addons/blue_support_client/wizard/client_support.py:0
 msgid "The support server rejected this request. Please update the Conexão Azul Support Assistant module to the latest version."
 msgstr "O servidor de suporte recusou a solicitação. Atualize o módulo Assistente de Suporte Conexão Azul."
 
-#. module: cybrosys_support_client
-#: code:addons/cybrosys_support_client/wizard/client_support.py:0
+#. module: blue_support_client
+#: code:addons/blue_support_client/wizard/client_support.py:0
 msgid "Too many support requests were sent recently. Please try again later."
 msgstr "Muitas solicitações de suporte foram enviadas recentemente. Tente novamente mais tarde."
 
-#. module: cybrosys_support_client
-#: code:addons/cybrosys_support_client/wizard/client_support.py:0
+#. module: blue_support_client
+#: code:addons/blue_support_client/wizard/client_support.py:0
 msgid "One of your attachments is larger than 3 MB. Please reduce its size."
 msgstr "Um dos anexos ultrapassa 3 MB. Reduza o tamanho do arquivo."
 
-#. module: cybrosys_support_client
-#: code:addons/cybrosys_support_client/wizard/client_support.py:0
+#. module: blue_support_client
+#: code:addons/blue_support_client/wizard/client_support.py:0
 msgid "Only images (PNG, JPG, GIF, WEBP, BMP), PDF and Word documents can be attached."
 msgstr "Só é possível anexar imagens (PNG, JPG, GIF, WEBP, BMP), PDF e documentos Word."
 
-#. module: cybrosys_support_client
-#: code:addons/cybrosys_support_client/wizard/client_support.py:0
+#. module: blue_support_client
+#: code:addons/blue_support_client/wizard/client_support.py:0
 msgid "Please check the subject and the email address."
 msgstr "Confira o assunto e o endereço de e-mail."
 
-#. module: cybrosys_support_client
-#: code:addons/cybrosys_support_client/wizard/client_support.py:0
+#. module: blue_support_client
+#: code:addons/blue_support_client/wizard/client_support.py:0
 msgid "The ticket submission did not go through. Please try again."
 msgstr "O chamado não foi enviado. Tente novamente."
 
-#. module: cybrosys_support_client
-#: code:addons/cybrosys_support_client/wizard/client_support.py:0
+#. module: blue_support_client
+#: code:addons/blue_support_client/wizard/client_support.py:0
 msgid "Configure a valid support WhatsApp number."
 msgstr "Configure um número de WhatsApp válido para o suporte."
 
-#. module: cybrosys_support_client
-#: model_terms:ir.ui.view,arch_db:cybrosys_support_client.client_support_view_form
+#. module: blue_support_client
+#: model_terms:ir.ui.view,arch_db:blue_support_client.client_support_view_form
 msgid "Suporte Conexão Azul"
 msgstr "Suporte Conexão Azul"
 
-#. module: cybrosys_support_client
-#: model_terms:ir.ui.view,arch_db:cybrosys_support_client.client_support_view_form
+#. module: blue_support_client
+#: model_terms:ir.ui.view,arch_db:blue_support_client.client_support_view_form
 msgid "Enviar chamado (requer configuração)"
 msgstr "Enviar chamado (requer configuração)"
 
-#. module: cybrosys_support_client
-#: model_terms:ir.ui.view,arch_db:cybrosys_support_client.client_support_view_form
+#. module: blue_support_client
+#: model_terms:ir.ui.view,arch_db:blue_support_client.client_support_view_form
 msgid "WhatsApp"
 msgstr "WhatsApp"
 
-#. module: cybrosys_support_client
-#: model_terms:ir.ui.view,arch_db:cybrosys_support_client.client_support_view_form
+#. module: blue_support_client
+#: model_terms:ir.ui.view,arch_db:blue_support_client.client_support_view_form
 msgid "Cancel"
 msgstr "Cancelar"
-

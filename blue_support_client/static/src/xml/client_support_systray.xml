@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates xml:space="preserve">
-    <t t-name="cybrosys_support_client.ClientSupportSystray">
+    <t t-name="blue_support_client.ClientSupportSystray">
         <div
             class="o_client_support_systray"
             t-on-click="openSupport"

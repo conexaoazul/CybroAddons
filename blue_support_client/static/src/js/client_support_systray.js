@@ -6,7 +6,7 @@ import { useService } from "@web/core/utils/hooks";
 import { useHotkey } from "@web/core/hotkeys/hotkey_hook";
 
 export class ClientSupportSystray extends Component {
-    static template = "cybrosys_support_client.ClientSupportSystray";
+    static template = "blue_support_client.ClientSupportSystray";
     static props = {};
 
     setup() {
@@ -27,7 +27,7 @@ export class ClientSupportSystray extends Component {
 }
 
 registry.category("systray").add(
-    "cybrosys_support_client.ClientSupportSystray",
+    "blue_support_client.ClientSupportSystray",
     { Component: ClientSupportSystray },
     { sequence: 100 }
 );
