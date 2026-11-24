@@ -102,22 +102,23 @@ class TestClientSupport(TransactionCase):
 
     def test_secret_file_preferred_and_missing_mount_fails_closed(self):
         wizard = self._wizard()
-        with (patch.dict(client_support.os.environ, {
-                  client_support.SUPPORT_TOKEN_FILE_ENV:
-                  '/run/secrets/blue_support_api_token'}),
-              patch('builtins.open', mock_open(read_data='mounted-secret')),
-              self._mock_post({'message': 'success', 'ticket_id': 'CA-43'}) as post):
-            wizard.confirm_button()
+        with patch.dict(client_support.os.environ, {
+                client_support.SUPPORT_TOKEN_FILE_ENV:
+                '/run/secrets/blue_support_api_token'}):
+            with patch('builtins.open', mock_open(read_data='mounted-secret')):
+                with self._mock_post({'message': 'success',
+                                      'ticket_id': 'CA-43'}) as post:
+                    wizard.confirm_button()
         self.assertEqual(
             post.call_args.kwargs['headers']['Authorization'],
             'Bearer mounted-secret')
-        with (patch.dict(client_support.os.environ, {
-                  client_support.SUPPORT_TOKEN_FILE_ENV:
-                  '/run/secrets/blue_support_api_token'}),
-              patch('builtins.open', side_effect=OSError('missing')),
-              self._mock_post({}) as post):
-            with self.assertRaises(ValidationError):
-                wizard.confirm_button()
+        with patch.dict(client_support.os.environ, {
+                client_support.SUPPORT_TOKEN_FILE_ENV:
+                '/run/secrets/blue_support_api_token'}):
+            with patch('builtins.open', side_effect=OSError('missing')):
+                with self._mock_post({}) as post:
+                    with self.assertRaises(ValidationError):
+                        wizard.confirm_button()
         post.assert_not_called()
 
     def test_tracking_url_validates_before_ticket_side_effect(self):
@@ -128,20 +129,20 @@ class TestClientSupport(TransactionCase):
         post.assert_not_called()
 
     def test_api_transport_failure_does_not_fallback_to_smtp(self):
-        with (patch.object(client_support.requests, 'post',
-                           side_effect=client_support.requests.Timeout('timeout')),
-              patch.object(client_support.ClientSupport, '_submit_via_smtp',
-                           side_effect=AssertionError('SMTP should not be called')) as smtp):
-            with self.assertRaises(ValidationError):
-                self._wizard().confirm_button()
+        with patch.object(client_support.requests, 'post',
+                          side_effect=client_support.requests.Timeout('timeout')):
+            with patch.object(client_support.ClientSupport, '_submit_via_smtp',
+                              side_effect=AssertionError('SMTP should not be called')) as smtp:
+                with self.assertRaises(ValidationError):
+                    self._wizard().confirm_button()
         smtp.assert_not_called()
 
     def test_existing_gateway_remains_available(self):
         self.params.set_param('blue_support.mode', 'gateway')
-        with (patch.object(client_support.ClientSupport, '_submit_via_rpc',
-                           return_value='TCK-42'),
-              patch.object(client_support.requests, 'post') as post):
-            action = self._wizard().confirm_button()
+        with patch.object(client_support.ClientSupport, '_submit_via_rpc',
+                          return_value='TCK-42'):
+            with patch.object(client_support.requests, 'post') as post:
+                action = self._wizard().confirm_button()
         post.assert_not_called()
         self.assertIn('TCK-42', action['params']['message'])
 
