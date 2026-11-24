@@ -338,3 +338,28 @@ msgstr "WhatsApp"
 #: model_terms:ir.ui.view,arch_db:blue_support_client.client_support_view_form
 msgid "Cancel"
 msgstr "Cancelar"
+
+#. module: blue_support_client
+#: code:addons/blue_support_client/wizard/client_support.py:0
+msgid "Could not confirm the support request. Keep this form open and try again later."
+msgstr "Não foi possível confirmar a solicitação. Mantenha este formulário aberto e tente novamente mais tarde."
+
+#. module: blue_support_client
+#: code:addons/blue_support_client/wizard/client_support.py:0
+msgid "The support service returned an unexpected response."
+msgstr "O serviço de suporte retornou uma resposta inesperada."
+
+#. module: blue_support_client
+#: code:addons/blue_support_client/wizard/client_support.py:0
+msgid "The support service could not process your request. Please try again later."
+msgstr "O serviço de suporte não conseguiu processar sua solicitação. Tente novamente mais tarde."
+
+#. module: blue_support_client
+#: code:addons/blue_support_client/wizard/client_support.py:0
+msgid "Only images, PDF and Word documents can be attached."
+msgstr "Somente imagens, PDF e documentos Word podem ser anexados."
+
+#. module: blue_support_client
+#: code:addons/blue_support_client/wizard/client_support.py:0
+msgid "Invalid support delivery mode."
+msgstr "Modo de envio de suporte inválido."

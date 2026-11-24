@@ -21,10 +21,10 @@
 ##############################################################################
 {
     'name': "Conexão Azul Support Assistant",
-    "version": "19.0.1.1.2",
+    "version": "19.0.1.1.3",
     "category": "Productivity ",
     "summary": "Get Conexão Azul technical and functional assistance from Odoo",
-    "description": """Conexão Azul support via WhatsApp; ticket submission requires an explicitly configured first-party endpoint. Based on the Cybrosys Support Assistant (LGPL-3).""",
+    "description": """Conexão Azul support via WhatsApp; tickets via local Helpdesk, central RPC, or an explicitly enabled first-party HTTP API. Based on the Cybrosys Support Assistant (LGPL-3).""",
     'author': 'Cybrosys Techno Solutions, Conexão Azul Digital',
     'company': 'Conexão Azul Digital',
     'maintainer': 'Conexão Azul Digital',
