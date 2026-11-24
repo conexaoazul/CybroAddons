@@ -228,106 +228,216 @@ class ClientSupport(models.TransientModel):
         response.raise_for_status()
         return response.json()
 
+    def _helpdesk_support_team(self):
+        """Time de helpdesk local (somente quando mode=local)."""
+        get_param = self.env['ir.config_parameter'].sudo().get_param
+        try:
+            tid = int(get_param('blue_support.helpdesk_team_id', '0') or 0)
+        except ValueError:
+            tid = 0
+        team = None
+        if tid:
+            team = self.env['helpdesk.team'].sudo().browse(tid).exists()
+        return team or self.env['helpdesk.team'].sudo().search([], limit=1)
+
+    def _submit_via_helpdesk(self):
+        """Cria helpdesk.ticket no DB local (usado so pelo DB da Conexao Azul)."""
+        if 'helpdesk.team' not in self.env:
+            return None
+        team = self._helpdesk_support_team()
+        if not team:
+            return None
+        body = chr(10).join([
+            self.description or '',
+            '',
+            'Origem: Assistente de Suporte Conexão Azul (blue_support_client)',
+        ])
+        ticket = self.env['helpdesk.ticket'].sudo().create({
+            'team_id': team.id,
+            'name': self.subject or 'Suporte via assistente',
+            'partner_id': self.env.user.partner_id.id,
+            'description': body,
+        })
+        if self.attachment_ids:
+            ticket.message_post(
+                body='',
+                attachment_ids=[(4, a.id) for a in self.attachment_ids])
+        _logger.info('blue support: helpdesk.ticket local id=%s criado', ticket.id)
+        return 'TCK-%s' % ticket.id
+
+    def _rpc_call(self, base, service, method, args):
+        r = requests.post(
+            base,
+            json={'jsonrpc': '2.0', 'method': 'call',
+                  'params': {'service': service, 'method': method,
+                             'args': args}, 'id': 1},
+            timeout=(5, 20),
+            headers={'User-Agent': 'blue_support_client/1.0'})
+        r.raise_for_status()
+        data = r.json()
+        if 'error' in data:
+            raise RuntimeError(str(data['error']))
+        return data.get('result')
+
+    def _submit_via_rpc(self):
+        """Camada 1 p/ clientes: JSON-RPC first-party no DB central da Conexao Azul."""
+        get_param = self.env['ir.config_parameter'].sudo().get_param
+        base = (get_param('blue_support.gateway_url', '')
+                or 'https://data.conexaoazul.com/jsonrpc').strip()
+        db = (get_param('blue_support.gateway_db', 'consultas') or '').strip()
+        login = (get_param('blue_support.gateway_login', '') or '').strip()
+        key = (get_param('blue_support.gateway_api_key', '') or '').strip()
+        if not (login and key):
+            return None
+        uid = self._rpc_call(base, 'common', 'authenticate',
+                             [db, login, key, {}])
+        if not uid:
+            _logger.warning('blue support: auth RPC falhou (login=%s)', login)
+            return None
+        teams = self._rpc_call(base, 'object', 'execute_kw',
+                               [db, uid, key, 'helpdesk.team', 'search',
+                                [[]], {'limit': 1}])
+        if not teams:
+            return None
+        vals = {
+            'team_id': teams[0],
+            'name': (self.subject or 'Suporte via assistente')[:200],
+            'description': chr(10).join([
+                self.description or '',
+                '',
+                'Origem: assistente de suporte (%s)' % (self.env.cr.dbname),
+            ]),
+        }
+        if self.email:
+            part = self._rpc_call(base, 'object', 'execute_kw',
+                                  [db, uid, key, 'res.partner', 'search_read',
+                                   [[['email', '=', self.email]]],
+                                   {'fields': ['id'], 'limit': 1}])
+            if part:
+                vals['partner_id'] = part[0]['id']
+        tid = self._rpc_call(base, 'object', 'execute_kw',
+                             [db, uid, key, 'helpdesk.ticket', 'create',
+                              [vals]])
+        # O ticket ja existe: falha em anexo nao pode cair no fallback SMTP
+        # (duplicaria o chamado). ir.attachment.datas ja vem em base64.
+        try:
+            attachment_ids = []
+            for attachment in self.attachment_ids:
+                if not attachment.datas:
+                    continue
+                data = attachment.datas
+                if isinstance(data, bytes):
+                    data = data.decode()
+                attachment_ids.append(self._rpc_call(
+                    base, 'object', 'execute_kw',
+                    [db, uid, key, 'ir.attachment', 'create', [{
+                        'name': attachment.name,
+                        'datas': data,
+                        'mimetype': attachment.mimetype
+                        or 'application/octet-stream',
+                        'res_model': 'helpdesk.ticket',
+                        'res_id': tid,
+                    }]]))
+            if attachment_ids:
+                self._rpc_call(
+                    base, 'object', 'execute_kw',
+                    [db, uid, key, 'helpdesk.ticket', 'message_post',
+                     [[tid]], {'body': 'Anexos enviados pelo assistente.',
+                               'attachment_ids': attachment_ids}])
+        except Exception:
+            _logger.exception(
+                'blue support: ticket TCK-%s criado, falha ao anexar', tid)
+        _logger.info('blue support: ticket remoto TCK-%s criado', tid)
+        return 'TCK-%s' % tid
+
+    def _submit_via_smtp(self):
+        """Fallback: e-mail para suporte@ (idealmente o alias do helpdesk)."""
+        get_param = self.env['ir.config_parameter'].sudo().get_param
+        to_addr = (get_param('blue_support.email', '')
+                   or 'suporte@conexaoazul.com').strip()
+        desc = (self.description or '').replace(chr(10), '<br/>')
+        rows = [
+            '<b>%s</b>: %s' % ('Cliente', self.name or ''),
+            '<b>%s</b>: %s' % ('E-mail', self.email or ''),
+            '<b>%s</b>: %s' % ('Telefone', self.phone or ''),
+            '<b>%s</b>: %s' % ('Tipo', self.support_type or ''),
+            '<b>%s</b>: %s' % ('Categoria', self.category or ''),
+            '<b>%s</b>: %s' % ('Prioridade', self.priority or ''),
+            '<br/><b>Descricao</b>:<br/>%s' % desc,
+        ]
+        mail = self.env['mail.mail'].sudo().create({
+            'subject': self.subject or 'Suporte via assistente',
+            'email_to': to_addr,
+            'body_html': '<div>%s</div>' % '<br/>'.join(rows),
+            'attachment_ids': [(6, 0, self.attachment_ids.ids)],
+        })
+        mail.send()
+        _logger.info('blue support: fallback smtp mail.id=%s -> %s', mail.id, to_addr)
+        return ''
+
+    def _run_submission(self):
+        """Executor generico de cadeia (reuso entre wizards):
+        mode=local -> helpdesk nativo; senao RPC central; fallback SMTP.
+        Retorna (canal, ref). Levanta ValidationError se todos falharem."""
+        self.ensure_one()
+        get_param = self.env['ir.config_parameter'].sudo().get_param
+        mode = (get_param('blue_support.mode', 'gateway') or 'gateway').strip()
+        ticket_ref = ''
+        channel = ''
+        if mode == 'local':
+            try:
+                reference = self._submit_via_helpdesk()
+            except Exception:
+                _logger.exception('helpdesk local falhou; proximo canal')
+                reference = None
+            if reference:
+                return 'helpdesk', reference
+        else:
+            try:
+                reference = self._submit_via_rpc()
+            except Exception:
+                _logger.exception('RPC central falhou; proximo canal')
+                reference = None
+            if reference:
+                return 'rpc', reference
+        try:
+            self._submit_via_smtp()
+            return 'smtp', ''
+        except Exception:
+            _logger.exception('Fallback SMTP falhou')
+            raise ValidationError(_(
+                "Nao foi possivel abrir o ticket agora. "
+                "Use o botao WhatsApp para falar com a Conexao Azul.")) from None
+
     def confirm_button(self):
-        """Submit only when the Conexão Azul support backend is configured."""
+        """mode=local -> helpdesk nativo; senao RPC central -> SMTP. Zap sempre nos botoes."""
         self.ensure_one()
         self._check_attachments()
-        try:
-            response_status = self._submit_support_request()
-        except requests.HTTPError as error:
-            status_code = (
-                error.response.status_code if error.response is not None else 0
-            )
-            _logger.exception(
-                "Support submission rejected by server (HTTP %s)", status_code)
-            if status_code == 413:
-                raise ValidationError(_(
-                    "Your attachments are too large. "
-                    "Please reduce their size and try again."
-                )) from None
-            if status_code >= 500:
-                raise ValidationError(_(
-                    "The support service is having issues. "
-                    "Please try again in a few minutes."
-                )) from None
-            raise ValidationError(_(
-                "The ticket submission was rejected. "
-                "Please check your inputs and try again."
-            )) from None
-        except (requests.ConnectionError, requests.Timeout):
-            _logger.exception(
-                "Support submission failed due to a network error")
-            raise ValidationError(_(
-                "Could not reach the support service. "
-                "Please check your network and try again."
-            )) from None
-        except (json.JSONDecodeError, ValueError):
-            _logger.exception(
-                "Support service returned an invalid response")
-            raise ValidationError(_(
-                "The support service returned an unexpected response. "
-                "Please try again later."
-            )) from None
-
-        if response_status.get('result', {}).get('message') == 'success':
-            result = response_status.get('result', {})
-            ticket_id = result.get('ticket_id') or ''
-            support_type_label = dict(
-                self._fields['support_type'].selection
-            ).get(self.support_type, '')
-            priority_label = dict(
-                self._fields['priority'].selection
-            ).get(self.priority, '')
-
-            # Newlines render as line breaks because the matching CSS rule
-            # applies white-space: pre-line. The final "%s" is replaced by a
-            # clickable tracking link by the display_notification action.
-            track_url = self._get_tracking_url()
-            lines = [_("Your Ticket Created Successfully"), '']
-            if ticket_id:
-                lines.append(_("Ticket Reference : %s") % ticket_id)
-            lines.extend([
-                '',
-                _("Save this reference to follow up with Conexão Azul."),
-            ])
-            if track_url:
-                lines.extend(['', _("Track your ticket status here: %s")])
-            message = '\n'.join(lines)
-
-            return {
-                'type': 'ir.actions.client',
-                'tag': 'display_notification',
-                'params': {
-                    'message': message,
-                    'links': ([{'label': track_url, 'url': track_url}]
-                              if track_url else []),
-                    'type': 'success',
-                    'sticky': True,
-                    'className': 'o_cybrosys_ticket_notification',
-                    'next': {'type': 'ir.actions.act_window_close'},
-                },
-            }
-        error_messages = {
-            'unauthorized': _(
-                "The support server rejected this request. Please update the "
-                "Conexão Azul Support Assistant module to the latest version."),
-            'rate_limited': _(
-                "Too many support requests were sent recently. Please try "
-                "again later."),
-            'too_many_files': _(
-                "You can attach at most %s files.", MAX_ATTACHMENTS),
-            'file_too_large': _(
-                "One of your attachments is larger than 3 MB. Please reduce "
-                "its size."),
-            'file_type_not_allowed': _(
-                "Only images (PNG, JPG, GIF, WEBP, BMP), PDF and Word "
-                "documents can be attached."),
-            'invalid_payload': _(
-                "Please check the subject and the email address."),
+        channel, ticket_ref = self._run_submission()
+        lines = ['Sua solicitacao foi registrada.']
+        if channel == 'helpdesk':
+            lines.insert(0, 'Ticket criado no Helpdesk da Conexao Azul.')
+        elif channel == 'rpc':
+            lines.insert(0, 'Ticket criado no suporte central da Conexao Azul.')
+        elif channel == 'smtp':
+            lines.insert(0, 'Sua solicitacao foi enviada por e-mail ao suporte.')
+        if ticket_ref:
+            lines.append('Referencia: %s' % ticket_ref)
+        track_url = self._get_tracking_url()
+        message = chr(10).join(lines)
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'message': message,
+                'links': ([{'label': track_url, 'url': track_url}]
+                          if track_url else []),
+                'type': 'success',
+                'sticky': True,
+                'className': 'o_cybrosys_ticket_notification',
+                'next': {'type': 'ir.actions.act_window_close'},
+            },
         }
-        code = response_status.get('result', {}).get('message')
-        raise ValidationError(error_messages.get(code) or _(
-            "The ticket submission did not go through. Please try again."))
 
     def whatsapp_button(self):
         """Open a WhatsApp chat with the support details."""

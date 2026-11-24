@@ -43,7 +43,7 @@ class TestClientSupport(TransactionCase):
 
     def test_no_endpoint_fails_closed_and_ignores_legacy_parameter(self):
         self.params.set_param(client_support.SUPPORT_ENDPOINT_PARAM, '')
-        self.params.set_param('cybrosys_support_client.endpoint_url',
+        self.params.set_param('blue_support_client.endpoint_url',
                               'https://support.cybrosys.com/help/request')
         with self._mock_post({}) as post, self.assertRaises(ValidationError):
             self._wizard().confirm_button()

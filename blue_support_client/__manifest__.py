@@ -37,10 +37,10 @@
     ],
     'assets': {
         'web.assets_backend': [
-            'cybrosys_support_client/static/src/js/client_support_systray.js',
-            'cybrosys_support_client/static/src/js/client_support_user_menu.js',
-            'cybrosys_support_client/static/src/xml/client_support_systray.xml',
-            'cybrosys_support_client/static/src/css/client_support.css',
+            'blue_support_client/static/src/js/client_support_systray.js',
+            'blue_support_client/static/src/js/client_support_user_menu.js',
+            'blue_support_client/static/src/xml/client_support_systray.xml',
+            'blue_support_client/static/src/css/client_support.css',
         ]
     },
     'images': ['static/description/banner.jpg'],
