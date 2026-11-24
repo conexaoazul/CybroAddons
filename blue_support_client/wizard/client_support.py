@@ -21,7 +21,10 @@
 ##############################################################################
 import json
 import logging
+import os
 import re
+import uuid
+from html import escape as html_escape
 from urllib.parse import quote, urlsplit
 
 import requests
@@ -34,6 +37,7 @@ from odoo.exceptions import ValidationError
 # third-party endpoint or token when using Conexao Azul-branded support.
 SUPPORT_ENDPOINT_PARAM = 'blue_support.endpoint_url'
 SUPPORT_API_TOKEN_PARAM = 'blue_support.api_token'
+SUPPORT_TOKEN_FILE_ENV = 'BLUE_SUPPORT_API_TOKEN_FILE'
 SUPPORT_TRACKING_URL_PARAM = 'blue_support.tracking_url'
 SUPPORT_WHATSAPP_PARAM = 'blue_support.whatsapp_number'
 DEFAULT_SUPPORT_WHATSAPP = '551151924469'
@@ -92,6 +96,10 @@ class ClientSupport(models.TransientModel):
         ('3', 'Blocker'),
     ], string='Priority', default='2',
         help='How urgent is this issue?')
+    request_key = fields.Char(
+        string='Request ID', default=lambda self: str(uuid.uuid4()),
+        readonly=True, copy=False,
+        help='Idempotency key for repeated submissions of this wizard.')
     show_payload = fields.Boolean(
         string='Show what will be sent',
         help='Preview the exact data sent to Conexão Azul before submitting.')
@@ -180,9 +188,24 @@ class ClientSupport(models.TransientModel):
 
     @api.model
     def _get_support_api_token(self):
-        token = (self.env['ir.config_parameter'].sudo().get_param(
-            SUPPORT_API_TOKEN_PARAM) or '').strip()
-        if not token:
+        # An explicit secret mount wins over the legacy Odoo parameter.
+        # A broken mount must fail closed, never silently use a DB token.
+        token_file = (os.environ.get(SUPPORT_TOKEN_FILE_ENV) or '').strip()
+        if token_file:
+            if (not token_file.startswith('/run/secrets/')
+                    or '..' in token_file.split('/')):
+                raise ValidationError(_(
+                    "Support ticket authentication is not configured yet. "
+                    "Please use the WhatsApp button to contact Conexão Azul."))
+            try:
+                with open(token_file, encoding='utf-8') as secret:
+                    token = secret.read(4097).strip()
+            except OSError:
+                token = ''
+        else:
+            token = (self.env['ir.config_parameter'].sudo().get_param(
+                SUPPORT_API_TOKEN_PARAM) or '').strip()
+        if not token or len(token) > 4096:
             raise ValidationError(_(
                 "Support ticket authentication is not configured yet. "
                 "Please use the WhatsApp button to contact Conexão Azul."))
@@ -216,17 +239,76 @@ class ClientSupport(models.TransientModel):
                     attachment.name))
 
     def _submit_support_request(self):
+        """Only mode=api uses this dedicated first-party contract.
+
+        The receiver MUST atomically deduplicate by credential and request key.
+        This sender never falls back to SMTP after an ambiguous POST.
+        """
         self.ensure_one()
         endpoint = self._get_support_endpoint()
         token = self._get_support_api_token()
-        response = requests.post(
-            endpoint,
-            json=self._build_payload(),
-            headers={'Authorization': 'Bearer %s' % token},
-            timeout=SUPPORT_TIMEOUT,
-        )
-        response.raise_for_status()
-        return response.json()
+        if not self.request_key:
+            self.request_key = str(uuid.uuid4())
+        try:
+            response = requests.post(
+                endpoint,
+                json=self._build_payload(),
+                headers={
+                    'Authorization': 'Bearer %s' % token,
+                    'X-Idempotency-Key': self.request_key,
+                    'X-Correlation-ID': self.request_key,
+                    'Accept': 'application/json',
+                },
+                timeout=SUPPORT_TIMEOUT,
+                allow_redirects=False,
+            )
+        except requests.RequestException:
+            _logger.warning('blue support: API transport failed')
+            raise ValidationError(_(
+                "Could not confirm the support request. "
+                "Keep this form open and try again later.")) from None
+        if 300 <= response.status_code < 400:
+            raise ValidationError(_(
+                "The support service returned an unexpected response."))
+        if response.status_code in (401, 403):
+            raise ValidationError(_(
+                "Support ticket authentication is not configured yet. "
+                "Please use the WhatsApp button to contact Conexão Azul."))
+        if response.status_code == 429:
+            raise ValidationError(_(
+                "Too many support requests were sent recently. Please try again later."))
+        if response.status_code >= 400:
+            raise ValidationError(_(
+                "The support service could not process your request. "
+                "Please try again later."))
+        try:
+            result = response.json()
+        except (ValueError, TypeError):
+            result = None
+        if not isinstance(result, dict) or not isinstance(result.get('result'), dict):
+            raise ValidationError(_(
+                "The support service returned an unexpected response."))
+        message = result['result'].get('message')
+        if message == 'unauthorized':
+            raise ValidationError(_(
+                "Support ticket authentication is not configured yet. "
+                "Please use the WhatsApp button to contact Conexão Azul."))
+        if message == 'rate_limited':
+            raise ValidationError(_(
+                "Too many support requests were sent recently. Please try again later."))
+        if message == 'file_type_not_allowed':
+            raise ValidationError(_(
+                "Only images, PDF and Word documents can be attached."))
+        if message != 'success':
+            raise ValidationError(_(
+                "The support service returned an unexpected response."))
+        ticket_id = result['result'].get('ticket_id')
+        if (isinstance(ticket_id, bool)
+                or not isinstance(ticket_id, (str, int))
+                or not 1 <= len(str(ticket_id).strip()) <= 128):
+            raise ValidationError(_(
+                "The support service returned an unexpected response."))
+        return str(ticket_id).strip()
 
     def _helpdesk_support_team(self):
         """Time de helpdesk local (somente quando mode=local)."""
@@ -355,14 +437,14 @@ class ClientSupport(models.TransientModel):
         get_param = self.env['ir.config_parameter'].sudo().get_param
         to_addr = (get_param('blue_support.email', '')
                    or 'suporte@conexaoazul.com').strip()
-        desc = (self.description or '').replace(chr(10), '<br/>')
+        desc = html_escape(self.description or '').replace(chr(10), '<br/>')
         rows = [
-            '<b>%s</b>: %s' % ('Cliente', self.name or ''),
-            '<b>%s</b>: %s' % ('E-mail', self.email or ''),
-            '<b>%s</b>: %s' % ('Telefone', self.phone or ''),
-            '<b>%s</b>: %s' % ('Tipo', self.support_type or ''),
-            '<b>%s</b>: %s' % ('Categoria', self.category or ''),
-            '<b>%s</b>: %s' % ('Prioridade', self.priority or ''),
+            '<b>%s</b>: %s' % ('Cliente', html_escape(self.name or '')),
+            '<b>%s</b>: %s' % ('E-mail', html_escape(self.email or '')),
+            '<b>%s</b>: %s' % ('Telefone', html_escape(self.phone or '')),
+            '<b>%s</b>: %s' % ('Tipo', html_escape(self.support_type or '')),
+            '<b>%s</b>: %s' % ('Categoria', html_escape(self.category or '')),
+            '<b>%s</b>: %s' % ('Prioridade', html_escape(self.priority or '')),
             '<br/><b>Descricao</b>:<br/>%s' % desc,
         ]
         mail = self.env['mail.mail'].sudo().create({
@@ -377,11 +459,16 @@ class ClientSupport(models.TransientModel):
 
     def _run_submission(self):
         """Executor generico de cadeia (reuso entre wizards):
-        mode=local -> helpdesk nativo; senao RPC central; fallback SMTP.
+        mode=api -> endpoint dedicado (fail-closed);
+        mode=local -> helpdesk nativo; mode=gateway -> RPC; fallback SMTP.
         Retorna (canal, ref). Levanta ValidationError se todos falharem."""
         self.ensure_one()
         get_param = self.env['ir.config_parameter'].sudo().get_param
         mode = (get_param('blue_support.mode', 'gateway') or 'gateway').strip()
+        if mode == 'api':
+            return 'api', self._submit_support_request()
+        if mode not in ('local', 'gateway'):
+            raise ValidationError(_("Invalid support delivery mode."))
         ticket_ref = ''
         channel = ''
         if mode == 'local':
@@ -410,20 +497,24 @@ class ClientSupport(models.TransientModel):
                 "Use o botao WhatsApp para falar com a Conexao Azul.")) from None
 
     def confirm_button(self):
-        """mode=local -> helpdesk nativo; senao RPC central -> SMTP. Zap sempre nos botoes."""
+        """Submit using explicit API or the existing local/RPC/SMTP chain."""
         self.ensure_one()
         self._check_attachments()
+        # Validate optional tracking configuration before creating any remote
+        # ticket: a bad URL must never turn a successful POST into a retry.
+        track_url = self._get_tracking_url()
         channel, ticket_ref = self._run_submission()
         lines = ['Sua solicitacao foi registrada.']
         if channel == 'helpdesk':
             lines.insert(0, 'Ticket criado no Helpdesk da Conexao Azul.')
         elif channel == 'rpc':
             lines.insert(0, 'Ticket criado no suporte central da Conexao Azul.')
+        elif channel == 'api':
+            lines.insert(0, 'Ticket criado na API de suporte da Conexao Azul.')
         elif channel == 'smtp':
             lines.insert(0, 'Sua solicitacao foi enviada por e-mail ao suporte.')
         if ticket_ref:
             lines.append('Referencia: %s' % ticket_ref)
-        track_url = self._get_tracking_url()
         message = chr(10).join(lines)
         return {
             'type': 'ir.actions.client',
